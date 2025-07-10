@@ -1,6 +1,6 @@
 import SignOutButton from '@/components/SignOutButton'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { Link } from 'expo-router'
+import { Link, Redirect } from 'expo-router'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
 export default function Page() {
@@ -9,10 +9,7 @@ export default function Page() {
   return (
     <View style={styles.container}>
       <SignedIn>
-        <Text style={styles.greeting}>
-          Hello {user?.emailAddresses[0].emailAddress}
-        </Text>
-        <SignOutButton />
+        <Redirect href="/(tabs)/home"/>
       </SignedIn>
       <SignedOut>
         <Link href="/(auth)/sign-in" asChild>

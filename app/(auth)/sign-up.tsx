@@ -1,7 +1,7 @@
-import * as React from 'react'
-import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { useSignUp } from '@clerk/clerk-expo'
-import { Link, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
+import * as React from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -88,11 +88,9 @@ export default function SignUpScreen() {
       </TouchableOpacity>
       <View style={styles.row}>
         <Text style={styles.text}>Already have an account?</Text>
-        <Link href="/sign-in" asChild>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.replace('/sign-in')}>
             <Text style={styles.link}>Sign in</Text>
           </TouchableOpacity>
-        </Link>
       </View>
     </View>
   )
