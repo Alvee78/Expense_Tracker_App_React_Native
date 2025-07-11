@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useSegments } from "expo-router";
+import { verticalScale } from "react-native-size-matters";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 20,
     right: 20,
-    bottom: 45,
+    bottom: verticalScale(20),
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
