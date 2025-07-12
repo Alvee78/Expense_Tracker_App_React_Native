@@ -2,6 +2,7 @@ import { useSignIn } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
 import React from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { scale, verticalScale } from 'react-native-size-matters'
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn()
@@ -33,30 +34,34 @@ export default function Page() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign in</Text>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        value={emailAddress}
-        placeholder="Enter email"
-        onChangeText={setEmailAddress}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder="Enter password"
-        secureTextEntry={true}
-        onChangeText={setPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={onSignInPress}>
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-      <View style={styles.row}>
-        <Text style={styles.text}>Don't have an account?</Text>
+      <View style={styles.formWrapper}>
+        <Text style={styles.title}>Sign in</Text>
+        <TextInput
+          style={styles.input}
+          autoCapitalize="none"
+          value={emailAddress}
+          placeholder="Enter email"
+          onChangeText={setEmailAddress}
+          keyboardType="email-address"
+          placeholderTextColor="#6b7280"
+        />
+        <TextInput
+          style={styles.input}
+          value={password}
+          placeholder="Enter password"
+          secureTextEntry={true}
+          onChangeText={setPassword}
+          placeholderTextColor="#6b7280"
+        />
+        <TouchableOpacity style={styles.button} onPress={onSignInPress}>
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+        <View style={styles.row}>
+          <Text style={styles.text}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-up')}>
             <Text style={styles.link}>Sign up</Text>
           </TouchableOpacity>
+        </View>
       </View>
     </View>
   )
@@ -65,54 +70,70 @@ export default function Page() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
-    alignItems: 'center',
+    backgroundColor: '#e0f7ef',
     justifyContent: 'center',
-    padding: 24,
+    alignItems: 'center',
+  },
+  formWrapper: {
+    backgroundColor: '#f8f8f8ff',
+    borderRadius: 30,
+    borderColor: '#22c55e',
+    borderWidth: 1,
+    paddingVertical: verticalScale(32),
+    paddingHorizontal: verticalScale(24),
+    width: '90%',
+    alignItems: 'center',
+    shadowColor: '#22c55e',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 2,
   },
   title: {
-    fontSize: 26,
+    fontSize: scale(32),
     fontWeight: '700',
-    color: '#22223b',
-    marginBottom: 32,
+    color: '#22c55e',
+    marginBottom: verticalScale(24),
+    textAlign: 'center',
   },
   input: {
-    width: 280,
-    padding: 12,
-    marginBottom: 18,
+    width: '100%',
+    padding: verticalScale(14),
+    marginBottom: verticalScale(18),
     borderWidth: 1,
     borderColor: '#d1d5db',
-    borderRadius: 8,
+    borderRadius: verticalScale(8),
     backgroundColor: '#fff',
-    fontSize: 16,
+    fontSize: scale(16),
+    color: '#22223b',
   },
   button: {
-    backgroundColor: '#2e64e5',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 8,
-    marginBottom: 18,
+    backgroundColor: '#22c55e',
+    paddingVertical: verticalScale(14),
+    borderRadius: verticalScale(8),
+    marginBottom: verticalScale(18),
     alignItems: 'center',
-    width: 280,
+    width: '100%',
+    marginTop: verticalScale(8),
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: scale(18),
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    marginTop: verticalScale(12),
   },
   text: {
-    fontSize: 15,
+    fontSize: scale(15),
     color: '#22223b',
   },
   link: {
-    color: '#2e64e5',
+    color: '#22c55e',
     fontWeight: '600',
-    fontSize: 15,
-    marginLeft: 4,
+    fontSize: scale(15),
+    marginLeft: scale(4),
   },
-})
+});

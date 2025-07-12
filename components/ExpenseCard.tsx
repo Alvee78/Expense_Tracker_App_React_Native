@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type ExpenseCardProps = {
@@ -8,15 +8,17 @@ type ExpenseCardProps = {
   description: string;
   date: string;
   type: 'income' | 'expense';
+  onLongPress?: () => void;
 };
 
-export default function ExpenseCard({ category, amount, description, date, type }: ExpenseCardProps) {
+export default function ExpenseCard({ category, amount, description, date, type, onLongPress }: ExpenseCardProps) {
   const isIncome = type === 'income';
   const color = isIncome ? '#22c55e' : '#ef4444'; // green or red
   const icon = isIncome ? 'arrow-up-circle' : 'arrow-down-circle';
 
   return (
-    <View
+    <TouchableOpacity
+    activeOpacity={0.9}
       style={{
         backgroundColor: '#fff',
         borderRadius: 16,
@@ -29,6 +31,7 @@ export default function ExpenseCard({ category, amount, description, date, type 
         shadowRadius: 10,
         elevation: 4,
       }}
+      onLongPress={onLongPress}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Left Section */}
@@ -57,6 +60,6 @@ export default function ExpenseCard({ category, amount, description, date, type 
           <Ionicons name={icon} size={24} color={color} style={{ marginTop: 4 }} />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }

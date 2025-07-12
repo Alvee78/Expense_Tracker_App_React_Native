@@ -12,16 +12,7 @@ export default function Page() {
         <Redirect href="/(tabs)/home"/>
       </SignedIn>
       <SignedOut>
-        <Link href="/(auth)/sign-in" asChild>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Sign in</Text>
-          </TouchableOpacity>
-        </Link>
-        <Link href="/(auth)/sign-up" asChild>
-          <TouchableOpacity style={styles.buttonSecondary}>
-            <Text style={styles.buttonTextSecondary}>Sign up</Text>
-          </TouchableOpacity>
-        </Link>
+        <Redirect href="./getStarted"/>
       </SignedOut>
     </View>
   )

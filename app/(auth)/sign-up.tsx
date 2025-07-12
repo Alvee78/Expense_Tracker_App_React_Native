@@ -1,12 +1,14 @@
 import { useSignUp } from '@clerk/clerk-expo'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import * as React from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { scale, verticalScale } from 'react-native-size-matters'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
   const router = useRouter()
-
+  const [fullName, setFullName] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [pendingVerification, setPendingVerification] = React.useState(false)
@@ -15,7 +17,11 @@ export default function SignUpScreen() {
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return
-
+    if( !emailAddress || !password || !fullName) {
+      Alert.alert('Please fill in all fields');
+      return;
+    }
+    await AsyncStorage.setItem('userName', fullName);
     try {
       await signUp.create({
         emailAddress,
@@ -50,47 +56,63 @@ export default function SignUpScreen() {
   if (pendingVerification) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Verify your email</Text>
-        <TextInput
-          style={styles.input}
-          value={code}
-          placeholder="Enter your verification code"
-          onChangeText={setCode}
-          keyboardType="number-pad"
-        />
-        <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
-          <Text style={styles.buttonText}>Verify</Text>
-        </TouchableOpacity>
+        <View style={styles.formWrapper}>
+          <Text style={styles.title}>Verify your email</Text>
+          <TextInput
+            style={styles.input}
+            value={code}
+            placeholder="Enter your verification code"
+            onChangeText={setCode}
+            keyboardType="number-pad"
+            placeholderTextColor="#6b7280"
+          />
+          <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
+            <Text style={styles.buttonText}>Verify</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     )
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign up</Text>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        value={emailAddress}
-        placeholder="Enter email"
-        onChangeText={setEmailAddress}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder="Enter password"
-        secureTextEntry={true}
-        onChangeText={setPassword}
-      />
-      <TouchableOpacity style={styles.button} onPress={onSignUpPress}>
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-      <View style={styles.row}>
-        <Text style={styles.text}>Already have an account?</Text>
+      <View style={styles.formWrapper}>
+        <Text style={styles.title}>Sign up</Text>
+        <TextInput
+          style={styles.input}
+          value={fullName}
+          placeholder="Enter your name"
+          onChangeText={setFullName}
+          keyboardType='default'
+          placeholderTextColor="#6b7280"
+        />  
+       
+        <TextInput
+          style={styles.input}
+          autoCapitalize="none"
+          value={emailAddress}
+          placeholder="Enter email"
+          onChangeText={setEmailAddress}
+          keyboardType="email-address"
+          placeholderTextColor="#6b7280"
+        />
+        <TextInput
+          style={styles.input}
+          value={password}
+          placeholder="Enter password"
+          secureTextEntry={true}
+          onChangeText={setPassword}
+          placeholderTextColor="#6b7280"
+        />
+        <TouchableOpacity style={styles.button} onPress={onSignUpPress}>
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+        <View style={styles.row}>
+          <Text style={styles.text}>Already have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-in')}>
             <Text style={styles.link}>Sign in</Text>
           </TouchableOpacity>
+        </View>
       </View>
     </View>
   )
@@ -99,54 +121,70 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
-    alignItems: 'center',
+    backgroundColor: '#e0f7ef',
     justifyContent: 'center',
-    padding: 24,
+    alignItems: 'center',
+  },
+  formWrapper: {
+    backgroundColor: '#f8f8f8ff',
+    borderRadius: 30,
+    borderColor: '#22c55e',
+    borderWidth: 1,
+    paddingVertical: verticalScale(32),
+    paddingHorizontal: verticalScale(24),
+    width: '90%',
+    maxWidth: 400,
+    alignItems: 'center',
+    shadowColor: '#22c55e',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 2,
   },
   title: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#22223b',
-    marginBottom: 32,
+    color: '#22c55e',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   input: {
-    width: 280,
-    padding: 12,
-    marginBottom: 18,
+    width: '100%',
+    padding: verticalScale(14),
+    marginBottom: verticalScale(18),
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 8,
     backgroundColor: '#fff',
-    fontSize: 16,
+    fontSize: scale(16),
+    color: '#22223b',
   },
   button: {
-    backgroundColor: '#2e64e5',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    backgroundColor: '#22c55e',
+    paddingVertical: verticalScale(14),
     borderRadius: 8,
-    marginBottom: 18,
+    marginBottom: verticalScale(18),
     alignItems: 'center',
-    width: 280,
+    width: '100%',
+    marginTop: verticalScale(8),
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: scale(18),
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    marginTop: verticalScale(12),
   },
   text: {
-    fontSize: 15,
+    fontSize: scale(15),
     color: '#22223b',
   },
   link: {
-    color: '#2e64e5',
+    color: '#22c55e',
     fontWeight: '600',
-    fontSize: 15,
-    marginLeft: 4,
+    fontSize: scale(15),
   },
-})
+});

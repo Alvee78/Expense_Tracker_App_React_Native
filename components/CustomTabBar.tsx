@@ -50,7 +50,7 @@ export default function CustomTabBar({ onAddPress }: Props) {
         onPress={() => router.push("./budget")}
       >
         <Ionicons
-          name="calendar-outline"
+          name="wallet-outline"
           size={24}
           color={current === "/budget" ? "#fff" : "#888"}
         />

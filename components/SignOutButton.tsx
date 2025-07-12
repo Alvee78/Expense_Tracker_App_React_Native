@@ -7,7 +7,7 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native'
   const handleSignOut = async () => {
     try {
       await signOut()
-      Linking.openURL(Linking.createURL('/'))
+      Linking.openURL(Linking.createURL('(home)'));
     } catch (err) {
       console.error(JSON.stringify(err, null, 2))
     }

@@ -1,5 +1,7 @@
+import ScreenWrapper from '@/components/ScreenWrapper'
 import { useAuth } from '@clerk/clerk-expo'
 import { Redirect, Stack } from 'expo-router'
+import React from 'react'
 
 export default function AuthRoutesLayout() {
   const { isSignedIn } = useAuth()
@@ -8,5 +10,7 @@ export default function AuthRoutesLayout() {
     return <Redirect href={'../(home)'} />
   }
 
-  return <Stack />
+  return (
+    <Stack screenOptions={{ headerShown: false }} />
+  );
 }

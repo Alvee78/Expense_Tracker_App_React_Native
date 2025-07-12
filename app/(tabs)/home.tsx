@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View, Image, FlatList } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, Modal, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite'
 import ExpenseCard from '../../components/ExpenseCard'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUser } from '@clerk/clerk-expo';
 
 type Expense = {
   id: number;
@@ -14,18 +16,29 @@ type Expense = {
   created_at: string;
 };
 
-const DUMMY_USER = {
-    name: "John Doe",
-    avatar: require('../../assets/images/icon.png') // Replace with your avatar image path
-};
+
 
 const Home = () => {
   const db = useSQLiteContext();
+  const { user } = useUser();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
-
+  const [userName, setUserName] = useState("John Doe");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  
   useEffect(() => {
+    const fetchUserName = async () => {
+      const storedName = await AsyncStorage.getItem('userName');
+      console.log("Stored user name:", storedName);
+      if (storedName) {
+        console.log("Using stored user name:", storedName);
+        setUserName(storedName);
+      }else {
+        console.log("No user name found, using default.");
+      }
+    };
     const fetchExpenses = async () => {
         const results = await db.getAllAsync<Expense>('SELECT * FROM expenses ORDER BY created_at DESC');
         setExpenses(results);
@@ -41,9 +54,30 @@ const Home = () => {
         setTotalExpense(expenseResult?.total ?? 0);
 
     };
+    fetchUserName();
     fetchExpenses();
   }, [db]);
 
+  // Handler for long press
+  const handleLongPress = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setModalVisible(true);
+  };
+  // Handler for delete
+  const handleDelete = async () => {
+    if (selectedExpense) {
+      await db.runAsync('DELETE FROM expenses WHERE id = ?', selectedExpense.id);
+      setExpenses(expenses.filter(e => e.id !== selectedExpense.id));
+      setModalVisible(false);
+      setSelectedExpense(null);
+    }
+  };
+  // Handler for edit (you can navigate to an edit screen or show an edit modal)
+    const handleEdit = () => {
+      // Example: navigate to edit screen with selectedExpense
+      // router.push(`/edit-expense/${selectedExpense.id}`);
+      setModalVisible(false);
+    };
   const netBalance = totalIncome - totalExpense;
 
   return (
@@ -57,7 +91,7 @@ const Home = () => {
                 color="green"
                 style={{ marginRight: 12 }}
             />
-            <Text style={styles.userName}>Alvee</Text>
+            <Text style={styles.userName}>{userName}</Text>
         </View>
         <View style={styles.balanceRow}>
           <View style={styles.balanceBox}>
@@ -86,11 +120,53 @@ const Home = () => {
             description={item.description}
             date={item.created_at}
             type={item.type}
+            onLongPress={() => handleLongPress(item)}
           />
         )}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32 }}>No expenses found.</Text>}
         contentContainerStyle={{ paddingVertical: 16 }}
       />
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.3)'
+        }}>
+          <View style={{
+            backgroundColor: '#fff',
+            borderRadius: 16,
+            padding: 24,
+            alignItems: 'center',
+            width: 250
+          }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Choose an action</Text>
+            <TouchableOpacity
+              style={{ backgroundColor: '#ef4444', padding: 12, borderRadius: 8, width: '100%', marginBottom: 8 }}
+              onPress={handleDelete}
+            >
+              <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>Delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ backgroundColor: '#22c55e', padding: 12, borderRadius: 8, width: '100%' }}
+              onPress={handleEdit}
+            >
+              <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ marginTop: 12 }}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={{ color: '#888', textAlign: 'center' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
