@@ -1,8 +1,9 @@
-import React from 'react';
-import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { Stack } from 'expo-router';
+import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
+import React from 'react';
 
 export default function RootLayout() {
   async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -109,11 +110,13 @@ export default function RootLayout() {
   return (
     <ClerkProvider tokenCache={tokenCache}>
       <SQLiteProvider databaseName="ExpenseTracker.db" onInit={migrateDbIfNeeded}>
-        <Stack screenOptions={{
-          headerShown: false,
-          animation: 'fade_from_bottom',
-        }}>
-        </Stack>
+        <ThemeProvider>
+          <Stack screenOptions={{
+            headerShown: false,
+            animation: 'fade_from_bottom',
+          }}>
+          </Stack>
+        </ThemeProvider>
       </SQLiteProvider>
     </ClerkProvider>
   );

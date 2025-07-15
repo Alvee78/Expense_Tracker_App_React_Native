@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View, Image, FlatList, Modal, TouchableOpacity } from 'react-native'
-import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react'
-import { useSQLiteContext } from 'expo-sqlite'
-import ExpenseCard from '../../components/ExpenseCard'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUser } from '@clerk/clerk-expo';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import React, { useEffect, useState } from 'react';
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ExpenseCard from '../../components/ExpenseCard';
 
 type Expense = {
   id: number;
@@ -21,6 +22,7 @@ type Expense = {
 const Home = () => {
   const db = useSQLiteContext();
   const { user } = useUser();
+  const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
@@ -74,8 +76,9 @@ const Home = () => {
   };
   // Handler for edit (you can navigate to an edit screen or show an edit modal)
     const handleEdit = () => {
-      // Example: navigate to edit screen with selectedExpense
-      // router.push(`/edit-expense/${selectedExpense.id}`);
+      if (!selectedExpense) return;
+
+      router.replace(`./UpdateTransaction?id=${selectedExpense.id}`);
       setModalVisible(false);
     };
   const netBalance = totalIncome - totalExpense;
@@ -96,15 +99,15 @@ const Home = () => {
         <View style={styles.balanceRow}>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Income</Text>
-            <Text style={[styles.value, { color: '#22c55e' }]}>${totalIncome.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: '#22c55e' }]}>৳{totalIncome.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Expense</Text>
-            <Text style={[styles.value, { color: '#ef4444' }]}>${totalExpense.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: '#ef4444' }]}>৳{totalExpense.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Net</Text>
-            <Text style={[styles.value, { color: netBalance >= 0 ? '#22c55e' : '#ef4444' }]}>${netBalance.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: netBalance >= 0 ? '#22c55e' : '#ef4444' }]}>৳{netBalance.toFixed(2)}</Text>
           </View>
         </View>
       </View>

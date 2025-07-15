@@ -1,20 +1,42 @@
+import { useTheme } from "@/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useSegments } from "expo-router";
-import { verticalScale } from "react-native-size-matters";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { verticalScale } from "react-native-size-matters";
 
 type Props = {
   onAddPress: () => void;
 };
 
+const tabColors = {
+  light: {
+    bar: "#fff",
+    iconActive: "#2563EB",
+    iconInactive: "#888",
+    addBg: "#2563EB",
+    addText: "#fff",
+    shadow: "#000",
+  },
+  dark: {
+    bar: "#111827",
+    iconActive: "#fff",
+    iconInactive: "#888",
+    addBg: "#2563EB",
+    addText: "#fff",
+    shadow: "#000",
+  },
+};
+
 export default function CustomTabBar({ onAddPress }: Props) {
+  const { theme } = useTheme();
+  const colors = tabColors[theme];
   const router = useRouter();
   const segments = useSegments();
   const current = `/${segments[segments.length - 1] || "home"}`;
 
   return (
-    <View style={styles.tabBar}>
+    <View style={[styles.tabBar, { backgroundColor: colors.bar, shadowColor: colors.shadow }]}>
       <TouchableOpacity
         style={styles.tabItem}
         onPress={() => router.push("./home")}
@@ -22,7 +44,7 @@ export default function CustomTabBar({ onAddPress }: Props) {
         <Ionicons
           name="home-outline"
           size={24}
-          color={current === "/home" ? "#fff" : "#888"}
+          color={current === "/home" ? colors.iconActive : colors.iconInactive}
         />
       </TouchableOpacity>
 
@@ -33,16 +55,16 @@ export default function CustomTabBar({ onAddPress }: Props) {
         <Ionicons
           name="stats-chart-outline"
           size={24}
-          color={current === "/chart" ? "#fff" : "#888"}
+          color={current === "/chart" ? colors.iconActive : colors.iconInactive}
         />
       </TouchableOpacity>
 
       {/* Center + icon */}
       <TouchableOpacity
-        style={[styles.tabItem, styles.addButton]}
-        onPress={onAddPress}  // Trigger modal open here
+        style={[styles.tabItem, styles.addButton, { backgroundColor: colors.addBg }]}
+        onPress={onAddPress}
       >
-        <Text style={styles.addText}>+</Text>
+        <Text style={[styles.addText, { color: colors.addText }]}>+</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -52,7 +74,7 @@ export default function CustomTabBar({ onAddPress }: Props) {
         <Ionicons
           name="wallet-outline"
           size={24}
-          color={current === "/budget" ? "#fff" : "#888"}
+          color={current === "/budget" ? colors.iconActive : colors.iconInactive}
         />
       </TouchableOpacity>
 
@@ -63,7 +85,7 @@ export default function CustomTabBar({ onAddPress }: Props) {
         <Ionicons
           name="settings-outline"
           size={24}
-          color={current === "/settings" ? "#fff" : "#888"}
+          color={current === "/settings" ? colors.iconActive : colors.iconInactive}
         />
       </TouchableOpacity>
     </View>
@@ -80,9 +102,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     height: 60,
-    backgroundColor: "#111827",
     borderRadius: 30,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -94,7 +114,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addButton: {
-    backgroundColor: "#2563EB",
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -102,7 +121,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   addText: {
-    color: "#fff",
     fontSize: 32,
     lineHeight: 50,
     textAlign: "center",

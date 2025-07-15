@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Modal, FlatList, Platform } from 'react-native';
-import { useSQLiteContext } from 'expo-sqlite';
-import { DatabaseService } from '../../services/DatabaseService';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
+import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, Modal, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { DatabaseService } from '../../services/DatabaseService';
 
 export default function AddTransactionPage() {
   const db = useSQLiteContext();
   const dbService = new DatabaseService(db);
-
+  const router = useRouter();
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -176,19 +177,46 @@ export default function AddTransactionPage() {
         />
       )}
 
-      {/* Submit */}
-      <TouchableOpacity
-        onPress={handleAddTransaction}
-        style={{
-          backgroundColor: '#6366f1',
-          padding: 14,
-          borderRadius: 10,
-        }}
-      >
-        <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
-          Add Transaction
-        </Text>
-      </TouchableOpacity>
+
+      {/* Submit and Cancel Buttons */}
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <TouchableOpacity
+          onPress={() => {
+            // Reset form and navigate back
+            setAmount('');
+            setDescription('');
+            setSelectedCategory('');
+            setDate(new Date());
+            router.replace('./home');
+          }}
+          style={{
+            flex: 1,
+            backgroundColor: '#6b7280',
+            padding: 14,
+            borderRadius: 10,
+          }}
+        >
+          <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          onPress={handleAddTransaction}
+          style={{
+            flex: 1,
+            backgroundColor: '#6366f1',
+            padding: 14,
+            borderRadius: 10,
+          }}
+        >
+          <Text style={{ color: '#fff', textAlign: 'center', fontWeight: '600' }}>
+            Add Transaction
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Modal for category selection */}
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center' }}>
             <View
