@@ -1,3 +1,4 @@
+import { useTheme } from "@/context/ThemeContext";
 import { useUser } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -5,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { verticalScale } from "react-native-size-matters";
 import ExpenseCard from '../../components/ExpenseCard';
 
 type Expense = {
@@ -21,6 +23,7 @@ type Expense = {
 
 const Home = () => {
   const db = useSQLiteContext();
+  const { theme, currency } = useTheme();
   const { user } = useUser();
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -99,15 +102,15 @@ const Home = () => {
         <View style={styles.balanceRow}>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Income</Text>
-            <Text style={[styles.value, { color: '#22c55e' }]}>৳{totalIncome.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: '#22c55e' }]}>{currency}{totalIncome.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Expense</Text>
-            <Text style={[styles.value, { color: '#ef4444' }]}>৳{totalExpense.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: '#ef4444' }]}>{currency}{totalExpense.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
             <Text style={styles.label}>Net</Text>
-            <Text style={[styles.value, { color: netBalance >= 0 ? '#22c55e' : '#ef4444' }]}>৳{netBalance.toFixed(2)}</Text>
+            <Text style={[styles.value, { color: netBalance >= 0 ? '#22c55e' : '#ef4444' }]}>{currency}{netBalance.toFixed(2)}</Text>
           </View>
         </View>
       </View>
@@ -127,7 +130,7 @@ const Home = () => {
           />
         )}
         ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32 }}>No expenses found.</Text>}
-        contentContainerStyle={{ paddingVertical: 16 }}
+        contentContainerStyle={{ paddingBottom: verticalScale(80)}}
       />
       <Modal
         visible={modalVisible}

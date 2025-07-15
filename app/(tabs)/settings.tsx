@@ -3,12 +3,21 @@ import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@clerk/clerk-expo';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { verticalScale } from 'react-native-size-matters';
 
+const currencyOptions = [
+  { label: '৳ Bangladeshi Taka', value: '৳' },
+  { label: '$ US Dollar', value: '$' },
+  { label: '₹ Indian Rupee', value: '₹' },
+  { label: '€ Euro', value: '€' },
+  { label: '£ British Pound', value: '£' },
+];
+
 const Settings = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, currency, setCurrency } = useTheme();
   const [userName, setUserName] = useState('John Doe');
   const [showModal, setShowModal] = useState(false);
   const [newUserName, setNewUserName] = useState('');
@@ -50,7 +59,7 @@ const Settings = () => {
         />
         <Text style={[styles.header, { color: colors.text }]}>Settings</Text>
       </View>
-
+      <ScrollView style={{marginBottom: verticalScale(50)}}>
       {/* User Info Card */}
       <View style={[styles.card, styles.shadow, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.row}>
@@ -68,6 +77,30 @@ const Settings = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Divider */}
+    <View style={styles.divider} />
+
+    {/* Currency Picker Card */}
+    <View style={[styles.card, styles.shadow, { backgroundColor: colors.card, borderColor: colors.border, height: verticalScale(110) }]}>
+      <View style={styles.row}>
+        <MaterialIcons name="attach-money" size={24} color={colors.subtitle} />
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={[styles.label, { color: colors.text }]}>Currency</Text>
+          <Text style={[styles.subtitle, { color: colors.subtitle }]}>Select your preferred currency.</Text>
+          <Picker
+            selectedValue={currency}
+            onValueChange={setCurrency}
+            style={{ color: colors.text, backgroundColor: colors.card, marginTop: 4 }}
+            dropdownIconColor={colors.text}
+          >
+            {currencyOptions.map(opt => (
+              <Picker.Item key={opt.value} label={opt.label} value={opt.value} />
+            ))}
+          </Picker>
+        </View>
+      </View>
+    </View>
 
       {/* Divider */}
       <View style={styles.divider} />
@@ -109,7 +142,7 @@ const Settings = () => {
       <View style={{ marginTop: 32 }}>
         <SignOutButton style={styles.signOutButton} textStyle={{ color: '#fff' }} />
       </View>
-
+      </ScrollView>
       {/* Change Username Modal */}
       <Modal visible={showModal} animationType="fade" transparent>
         <View style={styles.modalBg}>
@@ -175,8 +208,8 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     borderWidth: 1,
     elevation: 2,
-    height: verticalScale(100),
   },
+
   shadow: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },

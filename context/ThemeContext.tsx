@@ -8,6 +8,8 @@ interface ThemeContextProps {
   toggleTheme: () => void;
   isDataUpdated: boolean;
   setIsDataUpdated: (value: boolean) => void;
+  currency: string;
+  setCurrency: (value: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
@@ -15,10 +17,14 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>('light');
   const [isDataUpdated, setIsDataUpdated] = useState<boolean>(true);
+  const [currency, setCurrency] = useState<string>('৳');
 
   useEffect(() => {
     AsyncStorage.getItem('appTheme').then(stored => {
       if (stored === 'light' || stored === 'dark') setTheme(stored);
+    });
+    AsyncStorage.getItem('currency').then(storedCurrency => {
+      if (storedCurrency) setCurrency(storedCurrency);
     });
   }, []);
 
@@ -26,10 +32,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     AsyncStorage.setItem('appTheme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    AsyncStorage.setItem('currency', currency);
+  }, [currency]);
+
   const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDataUpdated, setIsDataUpdated }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDataUpdated, setIsDataUpdated, currency, setCurrency }}>
       {children}
     </ThemeContext.Provider>
   );
