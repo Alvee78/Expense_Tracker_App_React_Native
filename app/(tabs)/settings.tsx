@@ -35,12 +35,12 @@ const Settings = () => {
         accent: '#fde047',
       }
     : {
-        bg: '#fffde7', // very light yellow
-        card: '#fff9c4', // soft yellow for cards
-        text: '#18181b',
-        border: '#fde047', // yellow border
-        subtitle: '#b45309', // amber-700
-        accent: '#b45309',
+        bg: '#f3f4f6',        // light grey background
+        card: '#e5e7eb',      // grey card
+        text: '#18181b',      // dark text
+        border: '#e5e7eb',    // subtle grey border
+        subtitle: '#6b7280',  // medium grey subtitle
+        accent: '#22c55e',    // green accent
       };
 
   const handleChangeUserName = async () => {

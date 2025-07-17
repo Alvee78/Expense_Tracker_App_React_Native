@@ -26,11 +26,11 @@ export default function ExpenseCard({ category, amount, description, date, type,
         icon: isIncome ? '#22c55e' : '#ef4444',
       }
     : {
-        cardBg: '#fff9c4',        // soft yellow
-        textMain: '#18181b',
-        textSecondary: '#7c2d12', // dark brown
-        textDate: '#b45309',      // amber-700
-        icon: isIncome ? '#22c55e' : '#ef4444',
+        cardBg: '#e5e7eb',        // grey card
+        textMain: '#18181b',      // dark text
+        textSecondary: '#6b7280', // medium grey
+        textDate: '#6b7280',      // medium grey for date
+        icon: isIncome ? '#22c55e' : '#ef4444', // green/red accent
       };
 
   return (

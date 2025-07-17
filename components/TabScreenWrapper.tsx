@@ -11,7 +11,7 @@ type ScreenWrapperProps = {
 const TabScreenWrapper = ({ style, children }: ScreenWrapperProps) => {
   const { theme } = useTheme();
   // Yellow-based for light theme, dark for dark theme
-  const bgColor = theme === 'dark' ? '#18181b' : '#fde047'; // yellow-300
+  const bgColor = theme === 'dark' ? '#18181b' : '#f3f4f6'; // yellow-300
   const barStyle = theme === 'dark' ? 'light-content' : 'dark-content';
 
   return (

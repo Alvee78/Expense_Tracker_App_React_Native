@@ -44,14 +44,14 @@ const Home = () => {
         icon: '#fde047',
       }
     : {
-        bg: '#fffbe6', 
-        card: '#fde047', 
-        text: '#18181b',
-        subText: '#b45309', // amber-700
-        modalBg: '#fffbe6',
-        modalText: '#18181b',
-        modalCancel: '#b45309',
-        icon: '#b45309',
+        bg: '#f3f4f6',         // light grey background
+        card: '#e5e7eb',       // grey card
+        text: '#18181b',       // dark text
+        subText: '#6b7280',    // grey subtext
+        modalBg: '#e5e7eb',    // grey modal background
+        modalText: '#18181b',  // dark modal text
+        modalCancel: '#6b7280',// grey cancel text
+        icon: '#22c55e',       // green accent
       };
 
   useEffect(() => {
@@ -84,11 +84,26 @@ const Home = () => {
   };
   // Handler for delete
   const handleDelete = async () => {
+      const fetchExpenses = async () => {
+      const results = await db.getAllAsync<Expense>('SELECT * FROM expenses ORDER BY created_at DESC');
+      setExpenses(results);
+
+      // Get total income
+      const incomeResult = await db.getFirstAsync<{ total: number }>(
+        "SELECT SUM(amount) as total FROM expenses WHERE type = 'income'");
+      setTotalIncome(incomeResult?.total ?? 0);
+
+      // Get total expense
+      const expenseResult = await db.getFirstAsync<{ total: number }>(
+        "SELECT SUM(amount) as total FROM expenses WHERE type = 'expense'");
+      setTotalExpense(expenseResult?.total ?? 0);
+    };
     if (selectedExpense) {
       await db.runAsync('DELETE FROM expenses WHERE id = ?', selectedExpense.id);
       setExpenses(expenses.filter(e => e.id !== selectedExpense.id));
       setModalVisible(false);
       setSelectedExpense(null);
+      fetchExpenses();
     }
   };
   // Handler for edit
@@ -198,8 +213,6 @@ export default Home
 
 const styles = StyleSheet.create({
   summaryContainer: {
-    borderEndEndRadius: 16,
-    borderStartEndRadius: 16,
     marginBottom: 16,
     padding: 16,
     elevation: 3,

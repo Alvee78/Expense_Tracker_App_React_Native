@@ -37,7 +37,7 @@ export default function ChartPage() {
 
   const colors = useMemo(() => {
     return theme === 'dark'
-      ? { bg: '#18181b', card: '#27272a', text: '#fff', border: '#444', subtitle: '#a1a1aa' }
+      ? { bg: '#18181b', card: '#27272a', text: '#fde047', border: '#444', subtitle: '#a1a1aa' }
       : { bg: '#f9fafb', card: '#fff', text: '#222', border: '#e5e7eb', subtitle: '#6b7280' };
   }, [theme]);
 

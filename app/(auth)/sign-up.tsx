@@ -16,7 +16,7 @@ export default function SignUpScreen() {
   const [pendingVerification, setPendingVerification] = React.useState(false)
   const [code, setCode] = React.useState('')
 
-  // Theme colors
+  // Improved grey-based light theme
   const colors = theme === 'dark'
     ? {
         bg: '#18181b',
@@ -31,16 +31,16 @@ export default function SignUpScreen() {
         text: '#fde047',
       }
     : {
-        bg: '#fffde7', // light yellow
-        card: '#fff9c4', // soft yellow
-        border: '#fde047', // yellow border
-        title: '#b45309', // amber-700
-        inputBg: '#fff',
-        inputText: '#18181b',
-        button: '#fde047', // yellow button
-        buttonText: '#18181b',
-        link: '#b45309',
-        text: '#18181b',
+        bg: '#f3f4f6',        // light grey background
+        card: '#e5e7eb',      // grey card
+        border: '#e5e7eb',    // subtle grey border
+        title: '#22c55e',     // green accent for title
+        inputBg: '#fff',      // white input
+        inputText: '#18181b', // dark text
+        button: '#22c55e',    // green button
+        buttonText: '#fff',   // white button text
+        link: '#22c55e',      // green link
+        text: '#18181b',      // dark text
       };
 
   // Handle submission of sign-up form

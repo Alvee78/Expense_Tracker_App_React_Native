@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.alvi781.expensetracker"
     },
     "web": {
       "bundler": "metro",
@@ -30,7 +31,8 @@
     },
     "plugins": [
       "expo-router",
-      ["expo-sqlite",
+      [
+        "expo-sqlite",
         {
           "enableFTS": true,
           "useSQLCipher": true,
@@ -39,9 +41,12 @@
             "useSQLCipher": false
           },
           "ios": {
-            "customBuildFlags": ["-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"]
+            "customBuildFlags": [
+              "-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
+            ]
           }
-        }],
+        }
+      ],
       [
         "expo-splash-screen",
         {

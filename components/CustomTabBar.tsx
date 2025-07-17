@@ -11,12 +11,12 @@ type Props = {
 
 const tabColors = {
   light: {
-    bar: "#fde047",         // yellow-300 background
-    iconActive: "#b45309",  // amber-700 for active icon
-    iconInactive: "#a1a1aa",// neutral for inactive icon
-    addBg: "#b45309",       // amber-700 for add button
+    bar: "#f3f4f6",         // light grey background
+    iconActive: "#22c55e",  // green for active icon
+    iconInactive: "#6b7280",// medium grey for inactive icon
+    addBg: "#22c55e",       // green for add button
     addText: "#fff",        // white text for add button
-    shadow: "#b45309",      // amber-700 shadow
+    shadow: "#22c55e",      // green shadow
   },
   dark: {
     bar: "#18181b",

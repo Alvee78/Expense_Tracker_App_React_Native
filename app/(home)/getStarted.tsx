@@ -7,12 +7,13 @@ import { verticalScale } from 'react-native-size-matters';
 import CustomButton from '../../components/CustomButton';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import Typography from '../../components/Typography';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const welcome = () => {
   const router = useRouter();
   const { theme } = useTheme();
 
-  // Theme colors
+  // Modern grey-based light theme
   const colors = theme === 'dark'
     ? {
         bg: '#18181b',
@@ -24,17 +25,23 @@ const welcome = () => {
         buttonText: '#18181b',
       }
     : {
-        bg: '#fffde7', // light yellow
-        footer: '#fff9c4', // soft yellow
-        textMain: '#18181b',
-        textSecondary: '#6b7280',
-        border: '#fde047',
-        button: '#fde047',
-        buttonText: '#fff',
+        bg: '#f3f4f6',        // light grey background
+        footer: '#e5e7eb',    // grey footer
+        textMain: '#18181b',  // dark text
+        textSecondary: '#6b7280', // medium grey
+        border: '#e5e7eb',    // subtle grey border
+        button: '#22c55e',    // green button
+        buttonText: '#fff',   // white button text
       };
 
   return (
-    <ScreenWrapper style={[styles.container, { backgroundColor: colors.bg }]}>
+  <LinearGradient
+    colors={['#f3f4f6', '#e5e7eb', '#22c55e']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.gradientBg}
+  >
+    <ScreenWrapper style={[styles.container, { backgroundColor: 'transparent' }]}>
       <View>
         <Animated.Image
           entering={FadeInUp.duration(1000)}
@@ -94,6 +101,7 @@ const welcome = () => {
         </View>
       </View>
     </ScreenWrapper>
+    </LinearGradient>
   );
 };
 
@@ -125,5 +133,9 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: verticalScale(16),
     marginTop: verticalScale(16),
+  },
+    gradientBg: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });

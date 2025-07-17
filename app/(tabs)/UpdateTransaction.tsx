@@ -38,18 +38,18 @@ export default function UpdateTransactionPage() {
         modalCancel: '#ef4444',
       }
     : {
-        bg: '#fffde7',
-        card: '#fff9c4',
-        text: '#18181b',
-        inputBg: '#fff',
-        inputText: '#18181b',
-        border: '#fde047',
-        accent: '#6366f1',
-        btnCancel: '#6b7280',
-        btnUpdate: '#6366f1',
-        modalBg: '#fff',
-        modalText: '#18181b',
-        modalCancel: '#ef4444',
+        bg: '#f3f4f6',        // match Home bg
+        card: '#e5e7eb',      // match Home card
+        text: '#18181b',      // match Home text
+        inputBg: '#fff',      // white input
+        inputText: '#18181b', // dark text
+        border: '#e5e7eb',    // subtle grey border
+        accent: '#22c55e',    // green accent
+        btnCancel: '#6b7280', // grey cancel
+        btnUpdate: '#22c55e', // green update
+        modalBg: '#e5e7eb',   // match Home modal
+        modalText: '#18181b', // dark modal text
+        modalCancel: '#6b7280', // grey cancel text
       };
 
   const [type, setType] = useState<'income' | 'expense'>('expense');

@@ -35,21 +35,21 @@ export default function AddTransactionPage() {
         pickerText: '#fde047',
       }
     : {
-        bg: '#fffde7',
-        card: '#fff9c4',
-        text: '#18181b',
-        inputBg: '#fff',
-        inputText: '#18181b',
-        border: '#fde047',
-        accent: '#6366f1',
-        btnCancel: '#6b7280',
-        btnAdd: '#6366f1',
-        btnCat: '#10b981',
-        btnCatText: '#fff',
-        modalBg: '#fff',
-        modalText: '#18181b',
-        modalCancel: '#ef4444',
-        modalAdd: '#10b981',
+        bg: '#f3f4f6',        // match Home bg
+        card: '#e5e7eb',      // match Home card
+        text: '#18181b',      // match Home text
+        inputBg: '#fff',      // white input
+        inputText: '#18181b', // dark text
+        border: '#e5e7eb',    // subtle grey border
+        accent: '#22c55e',    // green accent
+        btnCancel: '#6b7280', // grey cancel
+        btnAdd: '#22c55e',    // green add
+        btnCat: '#22c55e',    // green add category
+        btnCatText: '#fff',   // white text
+        modalBg: '#e5e7eb',   // match Home modal
+        modalText: '#18181b', // dark modal text
+        modalCancel: '#6b7280', // grey cancel text
+        modalAdd: '#22c55e',  // green add
         pickerBg: '#fff',
         pickerText: '#18181b',
       };

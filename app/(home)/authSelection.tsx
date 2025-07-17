@@ -6,12 +6,11 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { verticalScale } from 'react-native-size-matters';
-
-const AuthSelection = () => {
+import { LinearGradient } from 'expo-linear-gradient';const AuthSelection = () => {
   const router = useRouter();
   const { theme } = useTheme();
 
-  // Theme colors
+  // Modern grey-based light theme
   const colors = theme === 'dark'
     ? {
         bg: '#18181b',
@@ -25,19 +24,25 @@ const AuthSelection = () => {
         buttonTextSecondary: '#fde047',
       }
     : {
-        bg: '#fffde7', // light yellow
-        footer: '#fff9c4', // soft yellow
-        border: '#fde047', // yellow border
-        title: '#b45309', // amber-700
-        subtitle: '#6b7280',
-        button: '#fde047', // yellow button
-        buttonText: '#18181b',
+        bg: '#f3f4f6',        // light grey background
+        footer: '#e5e7eb',    // grey footer
+        border: '#e5e7eb',    // subtle grey border
+        title: '#22c55e',     // green accent for title
+        subtitle: '#6b7280',  // medium grey subtitle
+        button: '#22c55e',    // green button
+        buttonText: '#fff',   // white button text
         buttonSecondary: '#fff',
-        buttonTextSecondary: '#b45309',
+        buttonTextSecondary: '#22c55e',
       };
 
   return (
-    <ScreenWrapper style={[styles.container, { backgroundColor: colors.bg }]}>
+<LinearGradient
+    colors={['#f3f4f6', '#e5e7eb', '#22c55e']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.gradientBg}
+  >
+    <ScreenWrapper style={[styles.container, { backgroundColor: 'transparent' }]}>
       <View style={styles.inner}>
         <Animated.Image
           entering={FadeInUp.duration(1000)}
@@ -80,6 +85,7 @@ const AuthSelection = () => {
         </View>
       </View>
     </ScreenWrapper>
+  </LinearGradient>
   );
 };
 
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
     marginHorizontal: verticalScale(16),
     marginBottom: verticalScale(40),
     borderWidth: 1,
-    height: verticalScale(260),
+    height: verticalScale(230),
   },
   title: {
     fontSize: 32,
@@ -154,5 +160,9 @@ const styles = StyleSheet.create({
   buttonTextSecondary: {
     fontWeight: '600',
     fontSize: 18,
+  },
+    gradientBg: {
+    flex: 1,
+    justifyContent: 'center',
   },
 });

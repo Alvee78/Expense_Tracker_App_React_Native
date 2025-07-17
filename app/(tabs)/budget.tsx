@@ -1,13 +1,13 @@
 import { useTheme } from '@/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useEffect, useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
+
 import {
   Alert,
   FlatList,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import * as Progress from 'react-native-progress';
+import { scale } from 'react-native-size-matters';
 
 const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
   Food: 'restaurant-outline',
@@ -44,26 +45,26 @@ export default function BudgetScreen() {
     ? {
         background: '#18181b',
         card: '#1e1e21ff',
-        text: '#ffffff',
+        text: '#fde047',
         border: '#444',
         subtitle: '#ddddf9ff',
         progressColor: '#417731ff',
         progressBg: '#ffffffff',
         iconCircleBg: '#2b323eff',
-        addBtnBg: '#90a789ff',
-        addBtnText: '#fff',
+        addBtnBg: '#fde047',
+        addBtnText: '#18181b',
       }
     : {
-        background: '#ffffff',
-        card: '#fffbeb',
-        text: '#000000ff',
-        border: '#fbbf24',
-        subtitle: '#92400e',
-        progressColor: '#b45309',
-        progressBg: '#fef3c7',
-        iconCircleBg: '#fde68a',
-        addBtnBg: '#f59e0b',
-        addBtnText: '#000',
+        background: '#f3f4f6',      // light grey background
+        card: '#e5e7eb',            // grey card
+        text: '#18181b',            // dark text
+        border: '#e5e7eb',          // subtle grey border
+        subtitle: '#6b7280',        // medium grey subtitle
+        progressColor: '#22c55e',   // green progress
+        progressBg: '#e5e7eb',      // grey progress background
+        iconCircleBg: '#e5e7eb',    // grey icon circle
+        addBtnBg: '#22c55e',        // green add button
+        addBtnText: '#fff',         // white add button text
       };
 
   const [budgetData, setBudgetData] = useState<any[]>([]);
@@ -73,8 +74,21 @@ export default function BudgetScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const result = await db.getAllAsync<{ category_name: string }>(
+          'SELECT category_name FROM category'
+        );
+        setCategories(result.map(row => row.category_name));
+      } catch (error) {
+        console.error('❌ Failed to fetch categories:', error);
+      }
+    };
+    fetchCategories();
+  }, [db, showAddForm]);
 
   useEffect(() => {
     fetchBudgetData();
@@ -99,12 +113,24 @@ export default function BudgetScreen() {
 
   const handleSaveBudget = async () => {
     if (!newCategory.trim() || !newAmount.trim()) {
-      alert('Please enter both category and amount');
+      alert('Please select a category and enter an amount');
       return;
     }
     if (isNaN(Number(newAmount)) || Number(newAmount) <= 0) {
       alert('Please enter a valid amount greater than zero');
       return;
+    }
+
+    // Prevent duplicate category (only for adding, not editing)
+    if (!isEditing) {
+      const existing = await db.getFirstAsync(
+        'SELECT id FROM budget WHERE category = ?',
+        [newCategory.trim()]
+      );
+      if (existing) {
+        alert('This category already exists in your budget');
+        return;
+      }
     }
 
     try {
@@ -157,7 +183,7 @@ export default function BudgetScreen() {
 
   const renderCategory = ({ item }: { item: any }) => {
     const remaining = item.budget - item.expenses;
-    const percentage = item.budget > 0 ? remaining / item.budget : 0;
+    const percentage = item.budget && remaining > 0 ? remaining / item.budget : 0;
     const iconName = iconMap[item.category] || 'ellipse-outline';
 
     return (
@@ -220,18 +246,7 @@ export default function BudgetScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.topBar}>
-        <TouchableOpacity>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
         <Text style={[styles.header, { color: colors.text }]}>Budget</Text>
-        <TouchableOpacity onPress={() => setShowCalendar(true)}>
-          <Text style={[styles.month, { color: colors.text }]}>
-            {selectedDate.toLocaleDateString('en-US', {
-              month: 'short',
-              year: 'numeric',
-            })} ▼
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -278,13 +293,17 @@ export default function BudgetScreen() {
               <Text style={[styles.formTitle, { color: colors.text }]}>
                 {isEditing ? 'Edit Budget' : 'Add New Budget'}
               </Text>
-              <TextInput
+              {/* Category Dropdown */}
+              <Picker
+                selectedValue={newCategory}
+                onValueChange={(itemValue) => setNewCategory(itemValue)}
                 style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                placeholder="Category"
-                placeholderTextColor={colors.subtitle}
-                value={newCategory}
-                onChangeText={setNewCategory}
-              />
+              >
+                <Picker.Item label="Select Category" value="" />
+                {categories.map(cat => (
+                  <Picker.Item key={cat} label={cat} value={cat} />
+                ))}
+              </Picker>
               <TextInput
                 style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                 placeholder="Amount"
@@ -315,17 +334,6 @@ export default function BudgetScreen() {
         </>
       )}
 
-      {showCalendar && (
-        <DateTimePicker
-          value={selectedDate}
-          mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
-          onChange={(event, date) => {
-            setShowCalendar(false);
-            if (date) setSelectedDate(date);
-          }}
-        />
-      )}
     </View>
   );
 }
@@ -335,8 +343,11 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     marginBottom: 12,
+    backgroundColor: 'transparent',
+    paddingVertical: 8,
+
   },
   header: { fontSize: 22, fontWeight: 'bold' },
   month: { fontSize: 16 },
@@ -467,6 +478,6 @@ const styles = StyleSheet.create({
   cancelBtnText: {
     color: 'white',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: scale(16),
   },
 });
