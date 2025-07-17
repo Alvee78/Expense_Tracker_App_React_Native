@@ -19,8 +19,6 @@ type Expense = {
   created_at: string;
 };
 
-
-
 const Home = () => {
   const db = useSQLiteContext();
   const { theme, currency } = useTheme();
@@ -32,32 +30,48 @@ const Home = () => {
   const [userName, setUserName] = useState("John Doe");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
-  
+
+  // Yellow-based light theme, dark theme for contrast
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        card: '#27272a',
+        text: '#fde047', // yellow-300
+        subText: '#a1a1aa',
+        modalBg: '#27272a',
+        modalText: '#fde047',
+        modalCancel: '#a1a1aa',
+        icon: '#fde047',
+      }
+    : {
+        bg: '#fffbe6', 
+        card: '#fde047', 
+        text: '#18181b',
+        subText: '#b45309', // amber-700
+        modalBg: '#fffbe6',
+        modalText: '#18181b',
+        modalCancel: '#b45309',
+        icon: '#b45309',
+      };
+
   useEffect(() => {
     const fetchUserName = async () => {
       const storedName = await AsyncStorage.getItem('userName');
-      console.log("Stored user name:", storedName);
-      if (storedName) {
-        console.log("Using stored user name:", storedName);
-        setUserName(storedName);
-      }else {
-        console.log("No user name found, using default.");
-      }
+      if (storedName) setUserName(storedName);
     };
     const fetchExpenses = async () => {
-        const results = await db.getAllAsync<Expense>('SELECT * FROM expenses ORDER BY created_at DESC');
-        setExpenses(results);
+      const results = await db.getAllAsync<Expense>('SELECT * FROM expenses ORDER BY created_at DESC');
+      setExpenses(results);
 
-        // Get total income
-        const incomeResult = await db.getFirstAsync<{ total: number }>(
+      // Get total income
+      const incomeResult = await db.getFirstAsync<{ total: number }>(
         "SELECT SUM(amount) as total FROM expenses WHERE type = 'income'");
-        setTotalIncome(incomeResult?.total ?? 0);
+      setTotalIncome(incomeResult?.total ?? 0);
 
-        // Get total expense
-        const expenseResult = await db.getFirstAsync<{ total: number }>(
+      // Get total expense
+      const expenseResult = await db.getFirstAsync<{ total: number }>(
         "SELECT SUM(amount) as total FROM expenses WHERE type = 'expense'");
-        setTotalExpense(expenseResult?.total ?? 0);
-
+      setTotalExpense(expenseResult?.total ?? 0);
     };
     fetchUserName();
     fetchExpenses();
@@ -77,39 +91,38 @@ const Home = () => {
       setSelectedExpense(null);
     }
   };
-  // Handler for edit (you can navigate to an edit screen or show an edit modal)
-    const handleEdit = () => {
-      if (!selectedExpense) return;
-
-      router.replace(`./UpdateTransaction?id=${selectedExpense.id}`);
-      setModalVisible(false);
-    };
+  // Handler for edit
+  const handleEdit = () => {
+    if (!selectedExpense) return;
+    router.replace(`./UpdateTransaction?id=${selectedExpense.id}`);
+    setModalVisible(false);
+  };
   const netBalance = totalIncome - totalExpense;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f6f6f6' }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       {/* Summary Section */}
-      <View style={styles.summaryContainer}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Ionicons
-                name="person-circle"
-                size={40}
-                color="green"
-                style={{ marginRight: 12 }}
-            />
-            <Text style={styles.userName}>{userName}</Text>
+      <View style={[styles.summaryContainer, { backgroundColor: colors.card, shadowColor: theme === 'dark' ? '#000' : '#b45309' }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+          <Ionicons
+            name="person-circle"
+            size={40}
+            color={colors.icon}
+            style={{ marginRight: 12 }}
+          />
+          <Text style={[styles.userName, { color: colors.text }]}>{userName}</Text>
         </View>
         <View style={styles.balanceRow}>
           <View style={styles.balanceBox}>
-            <Text style={styles.label}>Income</Text>
+            <Text style={[styles.label, { color: colors.subText }]}>Income</Text>
             <Text style={[styles.value, { color: '#22c55e' }]}>{currency}{totalIncome.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
-            <Text style={styles.label}>Expense</Text>
+            <Text style={[styles.label, { color: colors.subText }]}>Expense</Text>
             <Text style={[styles.value, { color: '#ef4444' }]}>{currency}{totalExpense.toFixed(2)}</Text>
           </View>
           <View style={styles.balanceBox}>
-            <Text style={styles.label}>Net</Text>
+            <Text style={[styles.label, { color: colors.subText }]}>Net</Text>
             <Text style={[styles.value, { color: netBalance >= 0 ? '#22c55e' : '#ef4444' }]}>{currency}{netBalance.toFixed(2)}</Text>
           </View>
         </View>
@@ -129,8 +142,12 @@ const Home = () => {
             onLongPress={() => handleLongPress(item)}
           />
         )}
-        ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 32 }}>No expenses found.</Text>}
-        contentContainerStyle={{ paddingBottom: verticalScale(80)}}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center', marginTop: 32, color: colors.subText }}>
+            No expenses found.
+          </Text>
+        }
+        contentContainerStyle={{ paddingBottom: verticalScale(80) }}
       />
       <Modal
         visible={modalVisible}
@@ -145,13 +162,13 @@ const Home = () => {
           backgroundColor: 'rgba(0,0,0,0.3)'
         }}>
           <View style={{
-            backgroundColor: '#fff',
+            backgroundColor: colors.modalBg,
             borderRadius: 16,
             padding: 24,
             alignItems: 'center',
             width: 250
           }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>Choose an action</Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: colors.modalText }}>Choose an action</Text>
             <TouchableOpacity
               style={{ backgroundColor: '#ef4444', padding: 12, borderRadius: 8, width: '100%', marginBottom: 8 }}
               onPress={handleDelete}
@@ -168,7 +185,7 @@ const Home = () => {
               style={{ marginTop: 12 }}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={{ color: '#888', textAlign: 'center' }}>Cancel</Text>
+              <Text style={{ color: colors.modalCancel, textAlign: 'center' }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -181,12 +198,11 @@ export default Home
 
 const styles = StyleSheet.create({
   summaryContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    margin: 16,
+    borderEndEndRadius: 16,
+    borderStartEndRadius: 16,
+    marginBottom: 16,
     padding: 16,
     elevation: 3,
-    shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -201,7 +217,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333'
+    color: '#18181b'
   },
   balanceRow: {
     flexDirection: 'row',
@@ -214,11 +230,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#888'
+    color: '#7c2d12'
   },
   value: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 2
+    marginTop: 2,
+    color: '#18181b',
   }
 });

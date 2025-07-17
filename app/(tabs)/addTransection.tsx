@@ -1,3 +1,4 @@
+import { useTheme } from '@/context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useRouter } from 'expo-router';
@@ -10,6 +11,49 @@ export default function AddTransactionPage() {
   const db = useSQLiteContext();
   const dbService = new DatabaseService(db);
   const router = useRouter();
+  const { theme } = useTheme();
+
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        card: '#232323',
+        text: '#fde047',
+        inputBg: '#232323',
+        inputText: '#fde047',
+        border: '#444',
+        accent: '#6366f1',
+        btnCancel: '#6b7280',
+        btnAdd: '#6366f1',
+        btnCat: '#10b981',
+        btnCatText: '#18181b',
+        modalBg: '#232323',
+        modalText: '#fde047',
+        modalCancel: '#ef4444',
+        modalAdd: '#10b981',
+        pickerBg: '#232323',
+        pickerText: '#fde047',
+      }
+    : {
+        bg: '#fffde7',
+        card: '#fff9c4',
+        text: '#18181b',
+        inputBg: '#fff',
+        inputText: '#18181b',
+        border: '#fde047',
+        accent: '#6366f1',
+        btnCancel: '#6b7280',
+        btnAdd: '#6366f1',
+        btnCat: '#10b981',
+        btnCatText: '#fff',
+        modalBg: '#fff',
+        modalText: '#18181b',
+        modalCancel: '#ef4444',
+        modalAdd: '#10b981',
+        pickerBg: '#fff',
+        pickerText: '#18181b',
+      };
+
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -21,7 +65,6 @@ export default function AddTransactionPage() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showAddCatModal, setShowAddCatModal] = useState(false);
 
-
   // Fetch categories from DB
   useEffect(() => {
     async function fetchCategories() {
@@ -31,7 +74,6 @@ export default function AddTransactionPage() {
       );
       setCategories(result.map((r) => r.category_name));
     }
-
     fetchCategories();
   }, [type, showModal]);
 
@@ -41,7 +83,6 @@ export default function AddTransactionPage() {
       Alert.alert('Please select a category and enter an amount');
       return;
     }
-
     try {
       await db.runAsync(
         'INSERT INTO expenses (category, amount, type, description, created_at) VALUES (?, ?, ?, ?, ?)',
@@ -65,19 +106,15 @@ export default function AddTransactionPage() {
   // Add new category
   const handleAddCategory = async () => {
     if (!newCategory) return;
-
-      // Check if category already exists
     const existing = await db.getFirstAsync<{ category_name: string }>(
       'SELECT category_name FROM category WHERE category_name = ? AND type = ?',
       newCategory,
       type
     );
-
     if (existing) {
       Alert.alert('Category already exists!');
       return;
     }
-
     await db.runAsync(
       'INSERT INTO category (category_name, type) VALUES (?, ?)',
       newCategory,
@@ -89,8 +126,8 @@ export default function AddTransactionPage() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb', padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>Add Transaction</Text>
+    <View style={{ flex: 1, backgroundColor: colors.bg, padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: colors.text }}>Add Transaction</Text>
 
       {/* Type Switch */}
       <View style={{ flexDirection: 'row', marginBottom: 16 }}>
@@ -102,11 +139,11 @@ export default function AddTransactionPage() {
               flex: 1,
               padding: 12,
               borderRadius: 10,
-              backgroundColor: type === item ? (item === 'income' ? '#22c55e' : '#ef4444') : '#e5e7eb',
+              backgroundColor: type === item ? (item === 'income' ? '#22c55e' : '#ef4444') : colors.card,
               marginRight: item === 'expense' ? 8 : 0,
             }}
           >
-            <Text style={{ textAlign: 'center', color: type === item ? '#fff' : '#000' }}>
+            <Text style={{ textAlign: 'center', color: type === item ? '#fff' : colors.text }}>
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </Text>
           </TouchableOpacity>
@@ -117,20 +154,18 @@ export default function AddTransactionPage() {
       <TouchableOpacity
         onPress={() => setShowModal(true)}
         style={{
-            backgroundColor: '#fff',
-            padding: 12,
-            borderRadius: 10,
-            marginBottom: 12,
-            borderWidth: 1,
-            borderColor: '#ddd',
+          backgroundColor: colors.card,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 12,
+          borderWidth: 1,
+          borderColor: colors.border,
         }}
-        >
-        <Text style={{ color: selectedCategory ? '#000' : '#888' }}>
-            {selectedCategory ? `📁 ${selectedCategory}` : '📁 Select Category'}
+      >
+        <Text style={{ color: selectedCategory ? colors.text : '#888' }}>
+          {selectedCategory ? `📁 ${selectedCategory}` : '📁 Select Category'}
         </Text>
-        </TouchableOpacity>
-
-
+      </TouchableOpacity>
 
       {/* Amount Input */}
       <TextInput
@@ -138,7 +173,17 @@ export default function AddTransactionPage() {
         value={amount}
         onChangeText={setAmount}
         keyboardType="decimal-pad"
-        style={inputStyle}
+        style={{
+          backgroundColor: colors.inputBg,
+          color: colors.inputText,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 12,
+          fontSize: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+        placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
       />
 
       {/* Description */}
@@ -146,29 +191,40 @@ export default function AddTransactionPage() {
         placeholder="Description (optional)"
         value={description}
         onChangeText={setDescription}
-        style={[inputStyle, { height: 80 }]}
+        style={{
+          backgroundColor: colors.inputBg,
+          color: colors.inputText,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 12,
+          fontSize: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+          height: 80,
+        }}
         multiline
+        placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
       />
 
       {/* Time Picker */}
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: colors.card,
           padding: 12,
           borderRadius: 10,
           marginBottom: 12,
           borderWidth: 1,
-          borderColor: '#ddd',
+          borderColor: colors.border,
         }}
       >
-        <Text style={{ color: '#000' }}>📅 {date.toLocaleString()}</Text>
+        <Text style={{ color: colors.text }}>📅 {date.toLocaleString()}</Text>
       </TouchableOpacity>
 
       {showDatePicker && (
         <DateTimePicker
           value={date}
-          mode={Platform.OS === 'ios' ? 'datetime' : 'date'} 
+          mode={Platform.OS === 'ios' ? 'datetime' : 'date'}
           display={Platform.OS === 'ios' ? 'inline' : 'default'}
           onChange={(_, selected) => {
             if (selected) setDate(selected);
@@ -177,12 +233,10 @@ export default function AddTransactionPage() {
         />
       )}
 
-
       {/* Submit and Cancel Buttons */}
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <TouchableOpacity
           onPress={() => {
-            // Reset form and navigate back
             setAmount('');
             setDescription('');
             setSelectedCategory('');
@@ -191,7 +245,7 @@ export default function AddTransactionPage() {
           }}
           style={{
             flex: 1,
-            backgroundColor: '#6b7280',
+            backgroundColor: colors.btnCancel,
             padding: 14,
             borderRadius: 10,
           }}
@@ -200,12 +254,12 @@ export default function AddTransactionPage() {
             Cancel
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           onPress={handleAddTransaction}
           style={{
             flex: 1,
-            backgroundColor: '#6366f1',
+            backgroundColor: colors.btnAdd,
             padding: 14,
             borderRadius: 10,
           }}
@@ -219,63 +273,62 @@ export default function AddTransactionPage() {
       {/* Modal for category selection */}
       <Modal visible={showModal} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center' }}>
-            <View
+          <View
             style={{
-                margin: 20,
-                backgroundColor: '#fff',
-                borderRadius: 16,
-                padding: 20,
-                maxHeight: '70%',
+              margin: 20,
+              backgroundColor: colors.modalBg,
+              borderRadius: 16,
+              padding: 20,
+              maxHeight: '70%',
             }}
-            >
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
-                Select a Category
+          >
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: colors.modalText }}>
+              Select a Category
             </Text>
 
             <FlatList
-                data={categories}
-                keyExtractor={(item) => item}
-                renderItem={({ item }) => (
+              data={categories}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
                 <TouchableOpacity
-                    onPress={() => {
+                  onPress={() => {
                     setSelectedCategory(item);
                     setShowModal(false);
-                    }}
-                    style={{
+                  }}
+                  style={{
                     paddingVertical: 10,
                     paddingHorizontal: 16,
                     borderBottomWidth: 1,
-                    borderColor: '#eee',
-                    }}
+                    borderColor: theme === 'dark' ? '#444' : '#eee',
+                  }}
                 >
-                    <Text style={{ fontSize: 16 }}>{item}</Text>
+                  <Text style={{ fontSize: 16, color: colors.text }}>{item}</Text>
                 </TouchableOpacity>
-                )}
+              )}
             />
 
             {/* Add New Category Shortcut */}
             <TouchableOpacity
-                onPress={() => {
+              onPress={() => {
                 setTimeout(() => setShowAddCatModal(true), 300);
-                }}
-                style={{
+              }}
+              style={{
                 marginTop: 12,
                 paddingVertical: 10,
-                backgroundColor: '#f3f4f6',
+                backgroundColor: theme === 'dark' ? '#232323' : '#f3f4f6',
                 borderRadius: 10,
-                }}
+              }}
             >
-                <Text style={{ textAlign: 'center', color: '#3b82f6' }}>+ Add New Category</Text>
+              <Text style={{ textAlign: 'center', color: colors.accent }}>+ Add New Category</Text>
             </TouchableOpacity>
 
             {/* Cancel Button */}
             <TouchableOpacity onPress={() => setShowModal(false)} style={{ marginTop: 10 }}>
-                <Text style={{ textAlign: 'center', color: '#ef4444' }}>Cancel</Text>
+              <Text style={{ textAlign: 'center', color: colors.modalCancel }}>Cancel</Text>
             </TouchableOpacity>
-            </View>
+          </View>
         </View>
-        </Modal>
-
+      </Modal>
 
       {/* Modal for new category */}
       <Modal visible={showAddCatModal} animationType="slide" transparent>
@@ -287,32 +340,42 @@ export default function AddTransactionPage() {
             padding: 20,
           }}
         >
-          <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
+          <View style={{ backgroundColor: colors.modalBg, borderRadius: 12, padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: colors.modalText }}>
               Add New Category
             </Text>
             <TextInput
               placeholder="Category Name"
               value={newCategory}
               onChangeText={setNewCategory}
-              style={inputStyle}
+              style={{
+                backgroundColor: colors.inputBg,
+                color: colors.inputText,
+                padding: 12,
+                borderRadius: 10,
+                marginBottom: 12,
+                fontSize: 16,
+                borderWidth: 1,
+                borderColor: colors.border,
+              }}
+              placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
             />
             <TouchableOpacity
               onPress={() => { handleAddCategory(); setShowAddCatModal(false); }}
               style={{
-                backgroundColor: '#10b981',
+                backgroundColor: colors.btnCat,
                 padding: 12,
                 borderRadius: 8,
                 marginTop: 10,
               }}
             >
-              <Text style={{ color: '#fff', textAlign: 'center' }}>Add Category</Text>
+              <Text style={{ color: colors.btnCatText, textAlign: 'center' }}>Add Category</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowAddCatModal(false)}
               style={{ marginTop: 10, alignItems: 'center' }}
             >
-              <Text style={{ color: '#ef4444' }}>Cancel</Text>
+              <Text style={{ color: colors.modalCancel }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -320,11 +383,3 @@ export default function AddTransactionPage() {
     </View>
   );
 }
-
-const inputStyle = {
-  backgroundColor: '#fff',
-  padding: 12,
-  borderRadius: 10,
-  marginBottom: 12,
-  fontSize: 16,
-};

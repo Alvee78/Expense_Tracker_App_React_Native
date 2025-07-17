@@ -1,3 +1,4 @@
+import { useTheme } from '@/context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -18,6 +19,38 @@ export default function UpdateTransactionPage() {
   const db = useSQLiteContext();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { theme } = useTheme();
+
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        card: '#232323',
+        text: '#fde047',
+        inputBg: '#232323',
+        inputText: '#fde047',
+        border: '#444',
+        accent: '#6366f1',
+        btnCancel: '#6b7280',
+        btnUpdate: '#6366f1',
+        modalBg: '#232323',
+        modalText: '#fde047',
+        modalCancel: '#ef4444',
+      }
+    : {
+        bg: '#fffde7',
+        card: '#fff9c4',
+        text: '#18181b',
+        inputBg: '#fff',
+        inputText: '#18181b',
+        border: '#fde047',
+        accent: '#6366f1',
+        btnCancel: '#6b7280',
+        btnUpdate: '#6366f1',
+        modalBg: '#fff',
+        modalText: '#18181b',
+        modalCancel: '#ef4444',
+      };
 
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [amount, setAmount] = useState('');
@@ -87,8 +120,8 @@ export default function UpdateTransactionPage() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb', padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
+    <View style={{ flex: 1, backgroundColor: colors.bg, padding: 20 }}>
+      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: colors.text }}>
         Update Transaction
       </Text>
 
@@ -107,11 +140,11 @@ export default function UpdateTransactionPage() {
                   ? item === 'income'
                     ? '#22c55e'
                     : '#ef4444'
-                  : '#e5e7eb',
+                  : colors.card,
               marginRight: item === 'expense' ? 8 : 0,
             }}
           >
-            <Text style={{ textAlign: 'center', color: type === item ? '#fff' : '#000' }}>
+            <Text style={{ textAlign: 'center', color: type === item ? '#fff' : colors.text }}>
               {item.charAt(0).toUpperCase() + item.slice(1)}
             </Text>
           </TouchableOpacity>
@@ -122,15 +155,15 @@ export default function UpdateTransactionPage() {
       <TouchableOpacity
         onPress={() => setShowModal(true)}
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: colors.card,
           padding: 12,
           borderRadius: 10,
           marginBottom: 12,
           borderWidth: 1,
-          borderColor: '#ddd',
+          borderColor: colors.border,
         }}
       >
-        <Text style={{ color: selectedCategory ? '#000' : '#888' }}>
+        <Text style={{ color: selectedCategory ? colors.text : '#888' }}>
           {selectedCategory ? `📁 ${selectedCategory}` : '📁 Select Category'}
         </Text>
       </TouchableOpacity>
@@ -141,7 +174,17 @@ export default function UpdateTransactionPage() {
         value={amount}
         onChangeText={setAmount}
         keyboardType="decimal-pad"
-        style={inputStyle}
+        style={{
+          backgroundColor: colors.inputBg,
+          color: colors.inputText,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 12,
+          fontSize: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+        placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
       />
 
       {/* Description */}
@@ -149,23 +192,34 @@ export default function UpdateTransactionPage() {
         placeholder="Description (optional)"
         value={description}
         onChangeText={setDescription}
-        style={[inputStyle, { height: 80 }]}
+        style={{
+          backgroundColor: colors.inputBg,
+          color: colors.inputText,
+          padding: 12,
+          borderRadius: 10,
+          marginBottom: 12,
+          fontSize: 16,
+          borderWidth: 1,
+          borderColor: colors.border,
+          height: 80,
+        }}
         multiline
+        placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
       />
 
       {/* Time Picker */}
       <TouchableOpacity
         onPress={() => setShowDatePicker(true)}
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: colors.card,
           padding: 12,
           borderRadius: 10,
           marginBottom: 12,
           borderWidth: 1,
-          borderColor: '#ddd',
+          borderColor: colors.border,
         }}
       >
-        <Text style={{ color: '#000' }}>📅 {date.toLocaleString()}</Text>
+        <Text style={{ color: colors.text }}>📅 {date.toLocaleString()}</Text>
       </TouchableOpacity>
 
       {showDatePicker && (
@@ -186,7 +240,7 @@ export default function UpdateTransactionPage() {
           onPress={() => router.replace('./home')}
           style={{
             flex: 1,
-            backgroundColor: '#6b7280',
+            backgroundColor: colors.btnCancel,
             padding: 14,
             borderRadius: 10,
           }}
@@ -195,12 +249,12 @@ export default function UpdateTransactionPage() {
             Cancel
           </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           onPress={handleUpdateTransaction}
           style={{
             flex: 1,
-            backgroundColor: '#6366f1',
+            backgroundColor: colors.btnUpdate,
             padding: 14,
             borderRadius: 10,
           }}
@@ -217,13 +271,13 @@ export default function UpdateTransactionPage() {
           <View
             style={{
               margin: 20,
-              backgroundColor: '#fff',
+              backgroundColor: colors.modalBg,
               borderRadius: 16,
               padding: 20,
               maxHeight: '70%',
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: colors.modalText }}>
               Select a Category
             </Text>
 
@@ -240,10 +294,10 @@ export default function UpdateTransactionPage() {
                     paddingVertical: 10,
                     paddingHorizontal: 16,
                     borderBottomWidth: 1,
-                    borderColor: '#eee',
+                    borderColor: theme === 'dark' ? '#444' : '#eee',
                   }}
                 >
-                  <Text style={{ fontSize: 16 }}>{item}</Text>
+                  <Text style={{ fontSize: 16, color: colors.text }}>{item}</Text>
                 </TouchableOpacity>
               )}
             />
@@ -251,7 +305,7 @@ export default function UpdateTransactionPage() {
               onPress={() => setShowModal(false)}
               style={{ marginTop: 10 }}
             >
-              <Text style={{ textAlign: 'center', color: '#ef4444' }}>Cancel</Text>
+              <Text style={{ textAlign: 'center', color: colors.modalCancel }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -259,11 +313,3 @@ export default function UpdateTransactionPage() {
     </View>
   );
 }
-
-const inputStyle = {
-  backgroundColor: '#fff',
-  padding: 12,
-  borderRadius: 10,
-  marginBottom: 12,
-  fontSize: 16,
-};

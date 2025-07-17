@@ -1,71 +1,101 @@
-import ScreenWrapper from '../../components/ScreenWrapper'
-import React from 'react'
-import { StyleSheet, Image, TouchableOpacity, View} from 'react-native'
-import Typography from '../../components/Typography'
-import { verticalScale } from 'react-native-size-matters'
-import CustomButton from '../../components/CustomButton'
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated'
-import { useRouter } from 'expo-router'
+import { useTheme } from '@/context/ThemeContext';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { verticalScale } from 'react-native-size-matters';
+import CustomButton from '../../components/CustomButton';
+import ScreenWrapper from '../../components/ScreenWrapper';
+import Typography from '../../components/Typography';
 
 const welcome = () => {
   const router = useRouter();
+  const { theme } = useTheme();
+
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        footer: '#232323',
+        textMain: '#fde047',
+        textSecondary: '#a1a1aa',
+        border: '#fde047',
+        button: '#fde047',
+        buttonText: '#18181b',
+      }
+    : {
+        bg: '#fffde7', // light yellow
+        footer: '#fff9c4', // soft yellow
+        textMain: '#18181b',
+        textSecondary: '#6b7280',
+        border: '#fde047',
+        button: '#fde047',
+        buttonText: '#fff',
+      };
+
   return (
-    <ScreenWrapper style={styles.container}>
+    <ScreenWrapper style={[styles.container, { backgroundColor: colors.bg }]}>
       <View>
-        
         <Animated.Image
           entering={FadeInUp.duration(1000)}
           source={require('../../assets/images/welcome.png')}
           style={styles.welcomeImage}
           resizeMode='contain'
         />
-        
-        <View style={styles.footer}>
+
+        <View style={[styles.footer, { backgroundColor: colors.footer, borderColor: colors.border }]}>
           <Animated.View
             entering={FadeInDown.duration(1000)}
-           style={{ alignItems: 'center' }}>
+            style={{ alignItems: 'center' }}>
             <Typography
               size={24}
-              fontWeight={'800'}>Welcome to Expense</Typography>
-
+              fontWeight={'800'}
+              color={colors.textMain}
+            >
+              Welcome to Expense
+            </Typography>
             <Typography
               size={24}
-              fontWeight={'800'}>Tracker</Typography>
-            </Animated.View>
+              fontWeight={'800'}
+              color={colors.textMain}
+            >
+              Tracker
+            </Typography>
+          </Animated.View>
 
-            <Animated.View 
-              entering={FadeInDown.duration(1000).delay(500)}
-              style={{ alignItems: 'center' }}>
+          <Animated.View
+            entering={FadeInDown.duration(1000).delay(500)}
+            style={{ alignItems: 'center' }}>
             <Typography
               size={16}
-              color={'#6b7280'}
-              style={{ alignSelf: 'center'}}
+              color={colors.textSecondary}
+              style={{ alignSelf: 'center' }}
             >
               Track your expenses and manage
             </Typography>
-            
             <Typography
               size={16}
-              color={'#6b7280'}
-              style={{ alignSelf: 'center'}}
+              color={colors.textSecondary}
+              style={{ alignSelf: 'center' }}
             >
               your budget effectively.
             </Typography>
-
           </Animated.View>
-          <Animated.View 
+          <Animated.View
             entering={FadeInDown.duration(1000).delay(1000)}
             style={styles.buttonContainer}>
             <CustomButton
               onPress={() => router.push('./authSelection')}
               title="Get Started"
+              style={{ backgroundColor: colors.button }}
+              textStyle={{ color: colors.buttonText }}
             />
           </Animated.View>
         </View>
       </View>
     </ScreenWrapper>
-  )
-}
+  );
+};
 
 export default welcome;
 
@@ -73,7 +103,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#e0f7ef',
   },
   welcomeImage: {
     width: '100%',
@@ -83,7 +112,6 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(70),
   },
   footer: {
-    backgroundColor: '#f8f8f8ff',
     alignItems: 'center',
     paddingTop: verticalScale(30),
     paddingBottom: verticalScale(30),
@@ -91,7 +119,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginHorizontal: verticalScale(16),
     marginBottom: verticalScale(24),
-    borderColor: '#22c55e', // green border
     borderWidth: 1,
   },
   buttonContainer: {
@@ -99,5 +126,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: verticalScale(16),
     marginTop: verticalScale(16),
   },
-}
-);
+});

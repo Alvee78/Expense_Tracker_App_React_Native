@@ -1,3 +1,4 @@
+import { useTheme } from '@/context/ThemeContext'
 import { useSignUp } from '@clerk/clerk-expo'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
@@ -8,16 +9,44 @@ import { scale, verticalScale } from 'react-native-size-matters'
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
   const router = useRouter()
+  const { theme } = useTheme()
   const [fullName, setFullName] = React.useState('');
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
   const [pendingVerification, setPendingVerification] = React.useState(false)
   const [code, setCode] = React.useState('')
 
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        card: '#232323',
+        border: '#fde047',
+        title: '#fde047',
+        inputBg: '#232323',
+        inputText: '#fde047',
+        button: '#fde047',
+        buttonText: '#18181b',
+        link: '#fde047',
+        text: '#fde047',
+      }
+    : {
+        bg: '#fffde7', // light yellow
+        card: '#fff9c4', // soft yellow
+        border: '#fde047', // yellow border
+        title: '#b45309', // amber-700
+        inputBg: '#fff',
+        inputText: '#18181b',
+        button: '#fde047', // yellow button
+        buttonText: '#18181b',
+        link: '#b45309',
+        text: '#18181b',
+      };
+
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
     if (!isLoaded) return
-    if( !emailAddress || !password || !fullName) {
+    if (!emailAddress || !password || !fullName) {
       Alert.alert('Please fill in all fields');
       return;
     }
@@ -55,19 +84,19 @@ export default function SignUpScreen() {
 
   if (pendingVerification) {
     return (
-      <View style={styles.container}>
-        <View style={styles.formWrapper}>
-          <Text style={styles.title}>Verify your email</Text>
+      <View style={[styles.container, { backgroundColor: colors.bg }]}>
+        <View style={[styles.formWrapper, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.border }]}>
+          <Text style={[styles.title, { color: colors.title }]}>Verify your email</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
             value={code}
             placeholder="Enter your verification code"
             onChangeText={setCode}
             keyboardType="number-pad"
-            placeholderTextColor="#6b7280"
+            placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
           />
-          <TouchableOpacity style={styles.button} onPress={onVerifyPress}>
-            <Text style={styles.buttonText}>Verify</Text>
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onVerifyPress}>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Verify</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -75,42 +104,41 @@ export default function SignUpScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formWrapper}>
-        <Text style={styles.title}>Sign up</Text>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.formWrapper, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.title }]}>Sign up</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
           value={fullName}
           placeholder="Enter your name"
           onChangeText={setFullName}
           keyboardType='default'
-          placeholderTextColor="#6b7280"
-        />  
-       
+          placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
+        />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
           autoCapitalize="none"
           value={emailAddress}
           placeholder="Enter email"
           onChangeText={setEmailAddress}
           keyboardType="email-address"
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
           value={password}
           placeholder="Enter password"
           secureTextEntry={true}
           onChangeText={setPassword}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
-        <TouchableOpacity style={styles.button} onPress={onSignUpPress}>
-          <Text style={styles.buttonText}>Continue</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignUpPress}>
+          <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
         </TouchableOpacity>
         <View style={styles.row}>
-          <Text style={styles.text}>Already have an account?</Text>
+          <Text style={[styles.text, { color: colors.text }]}>Already have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-in')}>
-            <Text style={styles.link}>Sign in</Text>
+            <Text style={[styles.link, { color: colors.link }]}>Sign in</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -121,21 +149,17 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e0f7ef',
     justifyContent: 'center',
     alignItems: 'center',
   },
   formWrapper: {
-    backgroundColor: '#f8f8f8ff',
     borderRadius: 30,
-    borderColor: '#22c55e',
     borderWidth: 1,
     paddingVertical: verticalScale(32),
     paddingHorizontal: verticalScale(24),
     width: '90%',
     maxWidth: 400,
     alignItems: 'center',
-    shadowColor: '#22c55e',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -144,7 +168,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#22c55e',
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -153,14 +176,11 @@ const styles = StyleSheet.create({
     padding: verticalScale(14),
     marginBottom: verticalScale(18),
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
-    backgroundColor: '#fff',
     fontSize: scale(16),
-    color: '#22223b',
   },
   button: {
-    backgroundColor: '#22c55e',
+    height: verticalScale(45),
     paddingVertical: verticalScale(14),
     borderRadius: 8,
     marginBottom: verticalScale(18),
@@ -169,7 +189,6 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
   },
   buttonText: {
-    color: '#fff',
     fontWeight: '600',
     fontSize: scale(18),
   },
@@ -180,11 +199,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: scale(15),
-    color: '#22223b',
   },
   link: {
-    color: '#22c55e',
     fontWeight: '600',
     fontSize: scale(15),
+    marginLeft: scale(4),
   },
 });

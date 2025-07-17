@@ -11,19 +11,19 @@ type Props = {
 
 const tabColors = {
   light: {
-    bar: "#fff",
-    iconActive: "#2563EB",
-    iconInactive: "#888",
-    addBg: "#2563EB",
-    addText: "#fff",
-    shadow: "#000",
+    bar: "#fde047",         // yellow-300 background
+    iconActive: "#b45309",  // amber-700 for active icon
+    iconInactive: "#a1a1aa",// neutral for inactive icon
+    addBg: "#b45309",       // amber-700 for add button
+    addText: "#fff",        // white text for add button
+    shadow: "#b45309",      // amber-700 shadow
   },
   dark: {
-    bar: "#111827",
-    iconActive: "#fff",
-    iconInactive: "#888",
-    addBg: "#2563EB",
-    addText: "#fff",
+    bar: "#18181b",
+    iconActive: "#fde047",
+    iconInactive: "#a1a1aa",
+    addBg: "#fde047",
+    addText: "#18181b",
     shadow: "#000",
   },
 };

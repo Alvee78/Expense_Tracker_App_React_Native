@@ -1,29 +1,30 @@
-import SignOutButton from '@/components/SignOutButton'
-import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
-import { Link, Redirect } from 'expo-router'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Loading from '@/components/LoadingScreen';
+import { SignedIn, SignedOut, useAuth } from '@clerk/clerk-expo';
+import { Redirect } from 'expo-router';
+import { StyleSheet } from 'react-native';
 
 export default function Page() {
-  const { user } = useUser()
+  const { isLoaded } = useAuth();
 
+  if(!isLoaded) {
+    return <Loading />;
+  }
   return (
-    <View style={styles.container}>
+    <>
       <SignedIn>
         <Redirect href="/(tabs)/home"/>
       </SignedIn>
       <SignedOut>
         <Redirect href="./getStarted"/>
       </SignedOut>
-    </View>
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'transparent',
     padding: 24,
   },
   greeting: {

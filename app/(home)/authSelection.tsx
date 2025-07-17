@@ -1,33 +1,59 @@
-import React from 'react';
-import { StyleSheet, View, Image, Touchable, TouchableOpacity } from 'react-native';
 import ScreenWrapper from '@/components/ScreenWrapper';
 import Typography from '@/components/Typography';
-import CustomButton from '@/components/CustomButton';
+import { useTheme } from '@/context/ThemeContext';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { verticalScale } from 'react-native-size-matters';
-import { useRouter } from 'expo-router';
 
 const AuthSelection = () => {
   const router = useRouter();
+  const { theme } = useTheme();
+
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        footer: '#232323',
+        border: '#fde047',
+        title: '#fde047',
+        subtitle: '#a1a1aa',
+        button: '#fde047',
+        buttonText: '#18181b',
+        buttonSecondary: '#232323',
+        buttonTextSecondary: '#fde047',
+      }
+    : {
+        bg: '#fffde7', // light yellow
+        footer: '#fff9c4', // soft yellow
+        border: '#fde047', // yellow border
+        title: '#b45309', // amber-700
+        subtitle: '#6b7280',
+        button: '#fde047', // yellow button
+        buttonText: '#18181b',
+        buttonSecondary: '#fff',
+        buttonTextSecondary: '#b45309',
+      };
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <ScreenWrapper style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={styles.inner}>
         <Animated.Image
-            entering={FadeInUp.duration(1000)}
+          entering={FadeInUp.duration(1000)}
           source={require('../../assets/images/welcome.png')}
           style={styles.welcomeImage}
           resizeMode="contain"
         />
-        <View style={styles.footer}>
+        <View style={[styles.footer, { backgroundColor: colors.footer, borderColor: colors.border }]}>
           <Animated.View
             entering={FadeInDown.duration(1000)}
             style={{ alignItems: 'center' }}
           >
-            <Typography style={styles.title} size={24} fontWeight="800">
+            <Typography style={[styles.title, { color: colors.title }]} size={24} fontWeight="800">
               Welcome!
             </Typography>
-            <Typography style={styles.subtitle} size={16} color="#6b7280">
+            <Typography style={[styles.subtitle, { color: colors.subtitle }]} size={16}>
               Sign in to continue or create a new account.
             </Typography>
           </Animated.View>
@@ -36,17 +62,19 @@ const AuthSelection = () => {
             style={styles.buttonContainer}
           >
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, { backgroundColor: colors.button }]}
               onPress={() => router.push('/(auth)/sign-in')}
             >
-              <Typography style={styles.buttonText}>Sign in</Typography>
+              <Typography style={[styles.buttonText, { color: colors.buttonText }]}>Sign in</Typography>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.buttonSecondary}
-        
+              style={[
+                styles.buttonSecondary,
+                { backgroundColor: colors.buttonSecondary, borderColor: colors.border },
+              ]}
               onPress={() => router.push('/(auth)/sign-up')}
             >
-              <Typography style={styles.buttonTextSecondary}>Sign up</Typography>
+              <Typography style={[styles.buttonTextSecondary, { color: colors.buttonTextSecondary }]}>Sign up</Typography>
             </TouchableOpacity>
           </Animated.View>
         </View>
@@ -61,7 +89,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#e0f7ef',
   },
   inner: {
     width: '100%',
@@ -75,7 +102,6 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(90),
   },
   footer: {
-    backgroundColor: '#f8f8f8ff',
     alignItems: 'center',
     paddingTop: verticalScale(20),
     paddingBottom: verticalScale(30),
@@ -83,20 +109,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginHorizontal: verticalScale(16),
     marginBottom: verticalScale(40),
-    borderColor: '#22c55e',
     borderWidth: 1,
-    height: verticalScale(260)
+    height: verticalScale(260),
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#22c55e',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: '#6b7280',
     marginBottom: 24,
     textAlign: 'center',
     paddingHorizontal: 12,
@@ -107,7 +130,6 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(-16),
   },
   button: {
-    backgroundColor: '#22c55e',
     paddingVertical: verticalScale(12),
     borderRadius: 8,
     marginBottom: 12,
@@ -117,23 +139,19 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
   },
   buttonText: {
-    color: '#fff',
     fontWeight: '600',
     fontSize: 18,
   },
   buttonSecondary: {
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#22c55e',
-    paddingVertical: verticalScale(12),
     borderRadius: 8,
     alignItems: 'center',
     width: '100%',
+    paddingVertical: verticalScale(12),
     paddingHorizontal: verticalScale(16),
     marginTop: verticalScale(4),
   },
   buttonTextSecondary: {
-    color: '#22c55e',
     fontWeight: '600',
     fontSize: 18,
   },

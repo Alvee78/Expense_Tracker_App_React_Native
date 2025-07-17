@@ -1,89 +1,119 @@
-import { useSignIn } from '@clerk/clerk-expo'
-import { useRouter } from 'expo-router'
-import React from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { scale, verticalScale } from 'react-native-size-matters'
+import Loading from '@/components/LoadingScreen';
+import { useTheme } from '@/context/ThemeContext';
+import { useSignIn } from '@clerk/clerk-expo';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { scale, verticalScale } from 'react-native-size-matters';
 
 export default function Page() {
-  const { signIn, setActive, isLoaded } = useSignIn()
-  const router = useRouter()
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const router = useRouter();
+  const { theme } = useTheme();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const [emailAddress, setEmailAddress] = React.useState('')
-  const [password, setPassword] = React.useState('')
+  const [emailAddress, setEmailAddress] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  // Theme colors
+  const colors = theme === 'dark'
+    ? {
+        bg: '#18181b',
+        card: '#232323',
+        border: '#fde047',
+        title: '#fde047',
+        inputBg: '#232323',
+        inputText: '#fde047',
+        button: '#fde047',
+        buttonText: '#18181b',
+        link: '#fde047',
+        text: '#fde047',
+      }
+    : {
+        bg: '#fffde7', // light yellow
+        card: '#fff9c4', // soft yellow
+        border: '#fde047', // yellow border
+        title: '#b45309', // amber-700
+        inputBg: '#fff',
+        inputText: '#18181b',
+        button: '#fde047', // yellow button
+        buttonText: '#18181b',
+        link: '#b45309',
+        text: '#18181b',
+      };
 
   // Handle the submission of the sign-in form
   const onSignInPress = async () => {
-    if (!isLoaded) return
-
+    if (!isLoaded) return;
+    setIsLoading(true);
     try {
       const signInAttempt = await signIn.create({
         identifier: emailAddress,
         password,
-      })
+      });
 
       if (signInAttempt.status === 'complete') {
-        await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        await setActive({ session: signInAttempt.createdSessionId });
+        router.replace('/');
       } else {
-        console.error(JSON.stringify(signInAttempt, null, 2))
+        console.error(JSON.stringify(signInAttempt, null, 2));
       }
     } catch (err) {
-      console.error(JSON.stringify(err, null, 2))
+      console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formWrapper}>
-        <Text style={styles.title}>Sign in</Text>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.formWrapper, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.title }]}>Sign in</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
           autoCapitalize="none"
           value={emailAddress}
           placeholder="Enter email"
           onChangeText={setEmailAddress}
           keyboardType="email-address"
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.inputBg, color: colors.inputText, borderColor: colors.border }]}
           value={password}
           placeholder="Enter password"
           secureTextEntry={true}
           onChangeText={setPassword}
-          placeholderTextColor="#6b7280"
+          placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
-        <TouchableOpacity style={styles.button} onPress={onSignInPress}>
-          <Text style={styles.buttonText}>Continue</Text>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignInPress}>
+          <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
         </TouchableOpacity>
         <View style={styles.row}>
-          <Text style={styles.text}>Don't have an account?</Text>
+          <Text style={[styles.text, { color: colors.text }]}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-up')}>
-            <Text style={styles.link}>Sign up</Text>
+            <Text style={[styles.link, { color: colors.link }]}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e0f7ef',
     justifyContent: 'center',
     alignItems: 'center',
   },
   formWrapper: {
-    backgroundColor: '#f8f8f8ff',
     borderRadius: 30,
-    borderColor: '#22c55e',
     borderWidth: 1,
     paddingVertical: verticalScale(32),
     paddingHorizontal: verticalScale(24),
     width: '90%',
     alignItems: 'center',
-    shadowColor: '#22c55e',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -92,7 +122,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: scale(32),
     fontWeight: '700',
-    color: '#22c55e',
     marginBottom: verticalScale(24),
     textAlign: 'center',
   },
@@ -101,14 +130,10 @@ const styles = StyleSheet.create({
     padding: verticalScale(14),
     marginBottom: verticalScale(18),
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: verticalScale(8),
-    backgroundColor: '#fff',
     fontSize: scale(16),
-    color: '#22223b',
   },
   button: {
-    backgroundColor: '#22c55e',
     paddingVertical: verticalScale(14),
     borderRadius: verticalScale(8),
     marginBottom: verticalScale(18),
@@ -117,7 +142,6 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
   },
   buttonText: {
-    color: '#fff',
     fontWeight: '600',
     fontSize: scale(18),
   },
@@ -128,10 +152,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: scale(15),
-    color: '#22223b',
   },
   link: {
-    color: '#22c55e',
     fontWeight: '600',
     fontSize: scale(15),
     marginLeft: scale(4),

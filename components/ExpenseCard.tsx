@@ -15,20 +15,29 @@ type ExpenseCardProps = {
 export default function ExpenseCard({ category, amount, description, date, type, onLongPress }: ExpenseCardProps) {
   const { theme, currency } = useTheme();
   const isIncome = type === 'income';
-  const color = isIncome ? '#22c55e' : '#ef4444'; // green or red
-  const icon = isIncome ? 'arrow-up-circle' : 'arrow-down-circle';
 
-  // Theme-based colors
-  const cardBg = theme === 'dark' ? '#18181b' : '#fff';
-  const textMain = theme === 'dark' ? '#f3f4f6' : '#333';
-  const textSecondary = theme === 'dark' ? '#a1a1aa' : '#666';
-  const textDate = theme === 'dark' ? '#6b7280' : '#aaa';
+  // Improved theme colors
+  const colors = theme === 'dark'
+    ? {
+        cardBg: '#232323',
+        textMain: '#fde047',      // yellow-300
+        textSecondary: '#a1a1aa',
+        textDate: '#b45309',      // amber-700
+        icon: isIncome ? '#22c55e' : '#ef4444',
+      }
+    : {
+        cardBg: '#fff9c4',        // soft yellow
+        textMain: '#18181b',
+        textSecondary: '#7c2d12', // dark brown
+        textDate: '#b45309',      // amber-700
+        icon: isIncome ? '#22c55e' : '#ef4444',
+      };
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
       style={{
-        backgroundColor: cardBg,
+        backgroundColor: colors.cardBg,
         borderRadius: 16,
         padding: 16,
         marginVertical: 8,
@@ -44,13 +53,13 @@ export default function ExpenseCard({ category, amount, description, date, type,
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Left Section */}
         <View>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: textMain }}>{category}</Text>
-          <Text style={{ fontSize: 14, color: textSecondary, marginTop: 4 }}>{description}</Text>
-          <Text style={{ fontSize: 12, color: textDate, marginTop: 4 }}>{date}</Text>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textMain }}>{category}</Text>
+          <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 4 }}>{description}</Text>
+          <Text style={{ fontSize: 12, color: colors.textDate, marginTop: 4 }}>{date}</Text>
           <Text
             style={{
               fontSize: 12,
-              color,
+              color: colors.icon,
               marginTop: 4,
               fontWeight: 'bold',
               textTransform: 'capitalize',
@@ -62,10 +71,10 @@ export default function ExpenseCard({ category, amount, description, date, type,
 
         {/* Right Section */}
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', color }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.icon }}>
             {isIncome ? '+' : '-'}{currency} {amount.toFixed(2)}
           </Text>
-          <Ionicons name={icon} size={24} color={color} style={{ marginTop: 4 }} />
+          <Ionicons name={isIncome ? 'arrow-up-circle' : 'arrow-down-circle'} size={24} color={colors.icon} style={{ marginTop: 4 }} />
         </View>
       </View>
     </TouchableOpacity>
