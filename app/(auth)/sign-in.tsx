@@ -3,10 +3,14 @@ import { useTheme } from '@/context/ThemeContext';
 import { useSignIn } from '@clerk/clerk-expo';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { scale, verticalScale } from 'react-native-size-matters';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Localhost } from '@/services/MagicWord';
+import { useSQLiteContext } from 'expo-sqlite';
 
 export default function Page() {
+  const db = useSQLiteContext();
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const { theme } = useTheme();
@@ -54,6 +58,7 @@ export default function Page() {
 
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId });
+        await fetchAndStoreUserData(emailAddress);
         router.replace('/');
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
@@ -64,6 +69,50 @@ export default function Page() {
       setIsLoading(false);
     }
   };
+
+
+  // Fetch and store user data from the server
+  async function fetchAndStoreUserData(email: string) {
+    try {
+      const response = await fetch(`http://${Localhost}/get_user.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        console.error('Error:', data.error);
+        return;
+      }
+
+      // Save user name in AsyncStorage
+      await AsyncStorage.setItem('userName', data.user.user_name);
+      //await AsyncStorage.setItem('user_email', data.user.email);
+
+      // Save expenses in SQLite
+      for (const item of data.expenses) {
+        await db.runAsync(
+          `INSERT OR IGNORE INTO expenses 
+          (id, category, amount, type, description, created_at, isUploaded)
+          VALUES (?, ?, ?, ?, ?, ?, 1)`,
+          [
+            item.expense_id,
+            item.category,
+            item.amount,
+            item.type,
+            item.description,
+            item.created_at,
+          ]
+        );
+      }
+
+      console.log('User and expenses synced from server.');
+    } catch (err:any) {
+      console.error('Failed to sync data:', err.message);
+    }
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -86,9 +135,11 @@ export default function Page() {
           onChangeText={setPassword}
           placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignInPress}>
-          <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
-        </TouchableOpacity>
+      {isLoading?<View style={[styles.button, { backgroundColor: colors.button }]}>
+        <ActivityIndicator size="small" color={colors.buttonText} />
+      </View>:<TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignInPress}>
+        <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
+      </TouchableOpacity>}
         <View style={styles.row}>
           <Text style={[styles.text, { color: colors.text }]}>Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-up')}>
@@ -139,6 +190,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginTop: verticalScale(8),
+    height: verticalScale(45),
   },
   buttonText: {
     fontWeight: '600',

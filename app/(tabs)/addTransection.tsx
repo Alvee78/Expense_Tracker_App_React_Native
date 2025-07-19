@@ -11,7 +11,7 @@ export default function AddTransactionPage() {
   const db = useSQLiteContext();
   const dbService = new DatabaseService(db);
   const router = useRouter();
-  const { theme } = useTheme();
+  const { theme, setIsDataUpdated } = useTheme();
 
   // Theme colors
   const colors = theme === 'dark'
@@ -97,6 +97,7 @@ export default function AddTransactionPage() {
       setDescription('');
       setSelectedCategory('');
       setDate(new Date());
+      setIsDataUpdated(false);
     } catch (e) {
       console.error(e);
       Alert.alert('Error adding transaction');

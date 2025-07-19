@@ -43,6 +43,15 @@ export default function RootLayout() {
             category TEXT NOT NULL,
             amount REAL NOT NULL
           );
+          -- Create expense_changes table
+          -- This table will track changes to expenses for syncing purposes
+          CREATE TABLE IF NOT EXISTS expense_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT NOT NULL CHECK(action IN ('edited', 'deleted')),
+            expense_id INTEGER,              -- ID from the main expenses table (SQLite)
+            isSynced INTEGER DEFAULT 0       -- 0 = not synced, 1 = synced
+          );
+
 
           CREATE INDEX IF NOT EXISTS idx_created_at ON expenses (created_at);
           CREATE INDEX IF NOT EXISTS idx_category ON expenses (category);
@@ -75,26 +84,26 @@ export default function RootLayout() {
         }
 
         // Insert a sample expense
-        await db.runAsync(
-          'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
-          'Food', 250.75, 'expense', 'Lunch at restaurant', 0
-        );
-                     await db.runAsync(
-          'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
-          'Food', 250.75, 'expense', 'Lunch at restaurant', 0
-        );
-        await db.runAsync(
-          'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
-          'Transport', 50.00, 'expense', 'Bus fare', 0
-        );
-        await db.runAsync(
-          'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
-          'Shopping', 120.00, 'expense', 'Clothes shopping', 0
-        );
-        await db.runAsync(
-          'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
-          'Salary', 2000.00, 'income', 'Monthly salary', 0
-        );
+        // await db.runAsync(
+        //   'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
+        //   'Food', 250.75, 'expense', 'Lunch at restaurant', 0
+        // );
+        //              await db.runAsync(
+        //   'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
+        //   'Food', 250.75, 'expense', 'Lunch at restaurant', 0
+        // );
+        // await db.runAsync(
+        //   'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
+        //   'Transport', 50.00, 'expense', 'Bus fare', 0
+        // );
+        // await db.runAsync(
+        //   'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
+        //   'Shopping', 120.00, 'expense', 'Clothes shopping', 0
+        // );
+        // await db.runAsync(
+        //   'INSERT INTO expenses (category, amount, type, description, isUploaded) VALUES (?, ?, ?, ?, ?)',
+        //   'Salary', 2000.00, 'income', 'Monthly salary', 0
+        // );
       }
  
 

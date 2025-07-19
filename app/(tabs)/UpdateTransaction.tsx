@@ -19,7 +19,7 @@ export default function UpdateTransactionPage() {
   const db = useSQLiteContext();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { theme } = useTheme();
+  const { theme, setIsDataUpdated } = useTheme();
 
   // Theme colors
   const colors = theme === 'dark'
@@ -111,6 +111,25 @@ export default function UpdateTransactionPage() {
         format(date, 'yyyy-MM-dd HH:mm:ss'),
         Number(id)
       );
+      const expenseId = id;
+      
+      // 1. Check if expense is uploaded
+      const expense = await db.getFirstAsync<{ isUploaded: number }>(`SELECT isUploaded FROM expenses WHERE id = ?`, [expenseId]);
+
+      // 2. If expense is uploaded, track edited action
+      if (expense && expense.isUploaded === 1) {
+        await db.runAsync(
+          `INSERT INTO expense_changes (action, expense_id)
+          SELECT 'edited', ?
+          WHERE NOT EXISTS (
+            SELECT 1 FROM expense_changes WHERE action = 'edited' AND expense_id = ? AND isSynced = 0
+          )`,
+          [expenseId, expenseId]
+        );
+      }
+      
+
+      setIsDataUpdated(false);
       Alert.alert('Transaction updated!');
       router.replace('./home');
     } catch (e) {

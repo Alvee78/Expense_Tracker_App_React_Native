@@ -53,7 +53,7 @@ import { LinearGradient } from 'expo-linear-gradient';const AuthSelection = () =
         <View style={[styles.footer, { backgroundColor: colors.footer, borderColor: colors.border }]}>
           <Animated.View
             entering={FadeInDown.duration(1000)}
-            style={{ alignItems: 'center' }}
+            style={{ alignItems: 'center', height: verticalScale(100) }}
           >
             <Typography style={[styles.title, { color: colors.title }]} size={24} fontWeight="800">
               Welcome!
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     marginHorizontal: verticalScale(16),
     marginBottom: verticalScale(40),
     borderWidth: 1,
-    height: verticalScale(230),
+    height: verticalScale(250),
   },
   title: {
     fontSize: 32,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     paddingHorizontal: verticalScale(16),
-    marginTop: verticalScale(-16),
+    marginTop: verticalScale(-16), height: verticalScale(100)
   },
   button: {
     paddingVertical: verticalScale(12),
@@ -143,6 +143,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: verticalScale(16),
     marginTop: verticalScale(8),
+    height: verticalScale(50)
   },
   buttonText: {
     fontWeight: '600',
@@ -156,6 +157,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     paddingHorizontal: verticalScale(16),
     marginTop: verticalScale(4),
+    height: verticalScale(50),
   },
   buttonTextSecondary: {
     fontWeight: '600',

@@ -5,6 +5,8 @@ import { useRouter } from 'expo-router'
 import * as React from 'react'
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { scale, verticalScale } from 'react-native-size-matters'
+import { Localhost } from '../../services/MagicWord';
+import { saveUser } from '@/services/server'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -73,7 +75,8 @@ export default function SignUpScreen() {
       })
       if (signUpAttempt.status === 'complete') {
         await setActive({ session: signUpAttempt.createdSessionId })
-        router.replace('/')
+        await saveUser(fullName, emailAddress);
+        router.replace('/');
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2))
       }

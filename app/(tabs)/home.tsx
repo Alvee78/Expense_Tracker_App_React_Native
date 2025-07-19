@@ -21,7 +21,7 @@ type Expense = {
 
 const Home = () => {
   const db = useSQLiteContext();
-  const { theme, currency } = useTheme();
+  const { theme, currency,  setIsDataUpdated } = useTheme();
   const { user } = useUser();
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -99,6 +99,27 @@ const Home = () => {
       setTotalExpense(expenseResult?.total ?? 0);
     };
     if (selectedExpense) {
+      
+
+      // add to expense_changes table
+      const expenseId = selectedExpense.id; // The expense you're deleting
+      // 1. Check if the expense isUploaded or not
+      const expense = await db.getFirstAsync<{ isUploaded: number }>(`SELECT isUploaded FROM expenses WHERE id = ?`, [expenseId]);
+
+      if (expense && expense.isUploaded === 1) {
+        // Expense already uploaded — track deletion for syncing
+        console.log('Tracking deletion for synced expense:', expenseId);
+        await db.runAsync(
+          `INSERT INTO expense_changes (action, expense_id)
+          SELECT 'deleted', ?
+          WHERE NOT EXISTS (
+            SELECT 1 FROM expense_changes
+            WHERE action = 'deleted' AND expense_id = ? AND isSynced = 0
+          )`,
+          [expenseId, expenseId]
+        );
+      }
+      setIsDataUpdated(false);
       await db.runAsync('DELETE FROM expenses WHERE id = ?', selectedExpense.id);
       setExpenses(expenses.filter(e => e.id !== selectedExpense.id));
       setModalVisible(false);

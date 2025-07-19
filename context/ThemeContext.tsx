@@ -16,7 +16,7 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>('light');
-  const [isDataUpdated, setIsDataUpdated] = useState<boolean>(true);
+  const [isDataUpdated, setIsDataUpdated] = useState<boolean>(false);
   const [currency, setCurrency] = useState<string>('৳');
 
   useEffect(() => {

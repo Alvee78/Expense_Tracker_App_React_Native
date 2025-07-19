@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { verticalScale } from 'react-native-size-matters';
 import SignOutButton from '../../components/SignOutButton';
+import { saveUser } from '@/services/server';
 
 const currencyOptions = [
   { label: '৳ Bangladeshi Taka', value: '৳' },
@@ -38,7 +39,7 @@ const Settings = () => {
         bg: '#f3f4f6',        // light grey background
         card: '#e5e7eb',      // grey card
         text: '#18181b',      // dark text
-        border: '#e5e7eb',    // subtle grey border
+        border: '#373839ff',    // subtle grey border
         subtitle: '#6b7280',  // medium grey subtitle
         accent: '#22c55e',    // green accent
       };
@@ -49,6 +50,7 @@ const Settings = () => {
       setUserName(trimmedUserName);
       setShowModal(false);
       setNewUserName('');
+      await saveUser(trimmedUserName, userEmail);
       await AsyncStorage.setItem('userName', trimmedUserName);
     }
   };
