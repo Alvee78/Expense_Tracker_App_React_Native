@@ -39,86 +39,165 @@ export async function syncNewExpenses(db: SQLiteDatabase, email: string) {
     SELECT * FROM expenses WHERE isUploaded = 0
   `);
 
+  console.log(`Found ${newExpenses.length} new expenses to sync`);
+  console.log('🔍 Expenses to sync:', newExpenses);
+
+  let syncedCount = 0;
+  let failedCount = 0;
+
   for (const exp of newExpenses) {
-    // Prepare payload with expense fields + email (overriding exp.email)
-    const payload = {
-      expense_id: exp.id,
-      email: email,
-      category: exp.category,
-      amount: exp.amount,
-      type: exp.type,
-      description: exp.description,
-      created_at: exp.created_at,
-    };
+    try {
+      // More detailed validation
+      console.log(`🔍 Processing expense ${exp.id}:`, exp);
+      
+      if (!exp.id || !exp.category || !exp.amount || !exp.type || !exp.created_at) {
+        console.error(`❌ Invalid expense data for ID ${exp.id}:`, exp);
+        failedCount++;
+        continue;
+      }
 
-    const response = await fetch(`http://${Localhost}/save_expense.php`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+      if (!email || !email.includes('@')) {
+        console.error(`❌ Invalid email: ${email}`);
+        failedCount++;
+        continue;
+      }
 
-    //---DEBUG---
-    // const text = await response.text();
-    // console.log('Raw response body:', text);
+      const payload = {
+        expense_id: exp.id,
+        email: email,
+        category: exp.category.toString().trim(),
+        amount: parseFloat(exp.amount.toString()),
+        type: exp.type,
+        description: (exp.description || '').toString(),
+        created_at: exp.created_at,
+      };
 
-    const result = await response.json();
+      console.log(`📤 Sending payload for expense ${exp.id}:`, JSON.stringify(payload, null, 2));
 
-    if (result.success) {
-      // Mark as uploaded locally
-      await db.runAsync(`UPDATE expenses SET isUploaded = 1 WHERE id = ?`, [exp.id]);
-    } else {
-      console.warn('Failed to upload expense:', result.message);
+      const response = await fetch(`https://${Localhost}/save_expense.php`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log(`📡 Response status for expense ${exp.id}: ${response.status}`);
+      console.log(`📡 Response headers:`, Object.fromEntries(response.headers.entries()));
+
+      const responseText = await response.text();
+      console.log(`📡 Raw response for expense ${exp.id}:`, responseText);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${responseText}`);
+      }
+
+      // Check content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error(`❌ Non-JSON response for expense ${exp.id}:`, responseText);
+        throw new Error('Server returned non-JSON response');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ JSON parse error for expense ${exp.id}:`, parseError);
+        throw new Error('Invalid JSON response from server');
+      }
+
+      console.log(`📦 Parsed response for expense ${exp.id}:`, result);
+
+      if (result.success === true) {
+        await db.runAsync(`UPDATE expenses SET isUploaded = 1 WHERE id = ?`, [exp.id]);
+        syncedCount++;
+        console.log(`✅ Successfully synced expense ${exp.id}`);
+      } else {
+        failedCount++;
+        const errorMessage = result.message || result.error || 'Unknown server error';
+        console.warn(`⚠️ Failed to upload expense ${exp.id}: ${errorMessage}`);
+      }
+
+    } catch (error: any) {
+      failedCount++;
+      console.error(`❌ Error syncing expense ${exp.id}:`, error.message || error);
     }
   }
+
+  console.log(`📊 Sync summary: ${syncedCount} synced, ${failedCount} failed`);
+  return { synced: syncedCount, failed: failedCount };
 }
 
 
 // Sync All changes
-async function syncExpenseChanges(db: SQLiteDatabase , email: string) {
+async function syncExpenseChanges(db: SQLiteDatabase, email: string) {
   const changes = await db.getAllAsync<ExpenseChange>(`
     SELECT * FROM expense_changes WHERE isSynced = 0
   `);
 
+  console.log(`Found ${changes.length} changes to sync`);
+
   for (const change of changes) {
-    let payload: {
-    action: 'edited' | 'deleted';
-    expense_id: number;
-    email: string;
-    expenses?: any[]; 
-    } = {
-      action: change.action,
-      expense_id: change.expense_id,
-      email: email
-    };
+    try {
+      let payload: {
+        action: 'edited' | 'deleted';
+        expense_id: number;
+        email: string;
+        expenses?: any[]; 
+      } = {
+        action: change.action,
+        expense_id: change.expense_id,
+        email: email
+      };
 
-    // Fetch all related expense rows with this expense_id
-    const expenses = await db.getAllAsync(
-      `SELECT * FROM expenses WHERE id = ?`,
-      [change.expense_id]
-    );
+      const expenses = await db.getAllAsync(
+        `SELECT * FROM expenses WHERE id = ?`,
+        [change.expense_id]
+      );
 
-    // For 'edited', send all related expense data (array)
-    if (change.action === 'edited') {
-      payload.expenses = expenses; // array with all matching expenses
-    }
+      if (change.action === 'edited') {
+        payload.expenses = expenses;
+      } else if (change.action === 'deleted') {
+        payload.expenses = [];
+      }
 
-    // For 'deleted', usually no need to send full data, just id is enough
-    if (change.action === 'deleted') {
-      payload.expenses = []; // or omit if your server doesn't need it
-    }
+      const response = await fetch(`https://${Localhost}/sync_changes.php`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json' 
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const response = await fetch(`http://${Localhost}/sync_changes.php`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-    const data = await response.json();
-    if (data.success) {
-      await db.runAsync(`UPDATE expense_changes SET isSynced = 1 WHERE id = ?`, [change.id]);
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned HTML instead of JSON');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        await db.runAsync(`UPDATE expense_changes SET isSynced = 1 WHERE id = ?`, [change.id]);
+        console.log(`✅ Synced change ${change.id}`);
+      } else {
+        console.warn(`⚠️ Failed to sync change ${change.id}:`, data.message);
+      }
+    } catch (error: any) {
+      console.error(`❌ Error syncing change ${change.id}:`, error.message);
+      continue;
     }
   }
 
+  // Clean up synced changes
   await db.runAsync(`DELETE FROM expense_changes WHERE isSynced = 1`);
 }
 
