@@ -1,4 +1,5 @@
 import { useClerk } from '@clerk/clerk-expo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Linking from 'expo-linking';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert, StyleSheet, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
@@ -19,6 +20,8 @@ const SignOutButton = ({ style, textStyle }: SignOutButtonProps) => {
       await db.runAsync('DELETE FROM category');
       await db.runAsync('DELETE FROM budget');
       await db.runAsync('DELETE FROM expense_changes');
+      // Clear AsyncStorage
+      await AsyncStorage.clear();
       // Add 15 initial categories
       const categories = [
         ['Food', 'expense'],
