@@ -197,7 +197,63 @@ async function fetchAndStoreUserData(email: string) {
       console.log('📝 No expenses to sync');
     }
 
-    console.log('✅ User and expenses synced successfully');
+    // Save budgets
+    if (data.budgets && Array.isArray(data.budgets)) {
+      let savedBudgetCount = 0;
+      let errorBudgetCount = 0;
+
+      console.log(`📊 Saving ${data.budgets.length} budgets...`);
+
+      for (const budget of data.budgets) {
+        try {
+          // Validate budget data
+          if (!budget.budget_id || !budget.category || !budget.amount || 
+              !budget.budget_month || !budget.budget_year) {
+            console.warn('⚠️ Invalid budget data:', budget);
+            errorBudgetCount++;
+            continue;
+          }
+
+          // Validate month and year ranges
+          if (budget.budget_month < 1 || budget.budget_month > 12) {
+            console.warn('⚠️ Invalid budget month:', budget.budget_month);
+            errorBudgetCount++;
+            continue;
+          }
+
+          if (budget.budget_year < 2020 || budget.budget_year > 2050) {
+            console.warn('⚠️ Invalid budget year:', budget.budget_year);
+            errorBudgetCount++;
+            continue;
+          }
+
+          // Insert budget with ON CONFLICT REPLACE to handle duplicates
+          await db.runAsync(
+            `INSERT OR REPLACE INTO budget 
+            (id, category, amount, budget_month, budget_year, created_at, isSynced)
+            VALUES (?, ?, ?, ?, ?, ?, 1)`,
+            [
+              budget.budget_id,
+              budget.category,
+              parseFloat(budget.amount),
+              parseInt(budget.budget_month),
+              parseInt(budget.budget_year),
+              budget.created_at || new Date().toISOString(),
+            ]
+          );
+          savedBudgetCount++;
+        } catch (dbError) {
+          console.error('❌ Database error for budget:', budget.budget_id, dbError);
+          errorBudgetCount++;
+        }
+      }
+
+      console.log(`📊 Budgets: ${savedBudgetCount} saved, ${errorBudgetCount} errors`);
+    } else {
+      console.log('📊 No budgets to sync');
+    }
+
+    console.log('✅ User, expenses, and budgets synced successfully');
     return { success: true, message: 'Data synced successfully' };
 
   } catch (err: any) {
@@ -222,6 +278,7 @@ async function fetchAndStoreUserData(email: string) {
     return { success: false, message: userMessage, error: err.message };
   }
 }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
       <View style={[styles.formWrapper, { backgroundColor: colors.card, borderColor: colors.border, shadowColor: colors.border }]}>

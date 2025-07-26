@@ -37,12 +37,18 @@ export default function RootLayout() {
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
           );
 
-          -- Create budget table
+          -- Create improved budget table with month/year fields
           CREATE TABLE IF NOT EXISTS budget (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category TEXT NOT NULL,
-            amount REAL NOT NULL
+            amount REAL NOT NULL,
+            budget_month INTEGER NOT NULL, -- 1-12 for Jan-Dec
+            budget_year INTEGER NOT NULL,  -- e.g., 2025
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            isSynced INTEGER DEFAULT 0,
+            UNIQUE(category, budget_month, budget_year) -- One budget per category per month/year
           );
+
           -- Create expense_changes table
           -- This table will track changes to expenses for syncing purposes
           CREATE TABLE IF NOT EXISTS expense_changes (
@@ -52,10 +58,18 @@ export default function RootLayout() {
             isSynced INTEGER DEFAULT 0       -- 0 = not synced, 1 = synced
           );
 
+          -- Create budget_changes table to track deleted budgets
+          CREATE TABLE IF NOT EXISTS budget_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            budget_id INTEGER NOT NULL,           -- Original budget ID from budget table
+            isSynced INTEGER DEFAULT 0           -- 0 = not synced, 1 = synced
+          );
+
 
           CREATE INDEX IF NOT EXISTS idx_created_at ON expenses (created_at);
           CREATE INDEX IF NOT EXISTS idx_category ON expenses (category);
-        `);
+          CREATE INDEX IF NOT EXISTS idx_budget_date ON budget (budget_month, budget_year);
+          `);
 
         // Add 15 initial categories
         const categories = [
