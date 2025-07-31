@@ -81,22 +81,23 @@ export default function ChartPage() {
 
   // Updated loadData function with date filtering
   const loadData = async () => {
-    // Create date range for selected month/year
-    const startDate = new Date(selectedYear, selectedMonth, 1);
-    const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
-    
-    const startDateStr = startDate.toISOString().slice(0, 19).replace('T', ' ');
-    const endDateStr = endDate.toISOString().slice(0, 19).replace('T', ' ');
+    // Format month and year for SQLite date comparison
+    const monthStr = (selectedMonth + 1).toString().padStart(2, '0'); // SQLite months are 1-12
+    const yearStr = selectedYear.toString();
+    const monthYearStr = `${yearStr}-${monthStr}`;
 
     console.log(`📊 Loading chart data for ${monthNames[selectedMonth]} ${selectedYear}`);
+    console.log(`📊 Filtering by month-year: ${monthYearStr}`);
 
     const result = await db.getAllAsync<{ category: string; amount: number }>(
       `SELECT category, SUM(amount) as amount
        FROM expenses
-       WHERE type = 'expense' AND created_at >= ? AND created_at <= ?
+       WHERE type = 'expense' AND strftime('%Y-%m', created_at) = ?
        GROUP BY category ORDER BY amount DESC`,
-      [startDateStr, endDateStr]
+      [monthYearStr]
     );
+
+    console.log(`📊 Found ${result.length} categories with expenses for ${monthNames[selectedMonth]} ${selectedYear}:`, result);
 
     const totalAmount = result.reduce((sum, r) => sum + r.amount, 0);
     const chartData = result.map((item, index) => ({

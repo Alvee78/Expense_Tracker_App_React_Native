@@ -1,8 +1,8 @@
 import { useTheme } from '@/context/ThemeContext';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image, StyleSheet, Text } from 'react-native';
 
 const Index = () => {
   const router = useRouter();
@@ -11,8 +11,8 @@ const Index = () => {
   // Modern grey-based light theme
   const colors = theme === 'dark'
     ? {
-        bg: '#18181b',
-        text: '#fde047',
+        bg: '#f3f4f6',
+        text: '#18181b',
       }
     : {
         bg: '#f3f4f6', // light grey background

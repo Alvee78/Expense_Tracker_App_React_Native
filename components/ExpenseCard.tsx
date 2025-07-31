@@ -52,7 +52,7 @@ export default function ExpenseCard({ category, amount, description, date, type,
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         {/* Left Section */}
-        <View>
+        <View style={{ width: '70%' }}>
           <Text style={{ fontSize: 18, fontWeight: '600', color: colors.textMain }}>{category}</Text>
           <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 4 }}>{description}</Text>
           <Text style={{ fontSize: 12, color: colors.textDate, marginTop: 4 }}>{date}</Text>
