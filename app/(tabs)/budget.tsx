@@ -318,7 +318,7 @@ export default function BudgetScreen() {
   };
 
   const renderCategory = ({ item }: { item: BudgetItem }) => {
-    const remaining = Math.max(0, item.budget - item.expenses);
+    const remaining = Math.max( item.budget - item.expenses);
     const percentage = item.budget > 0 ? Math.min(1, item.expenses / item.budget) : 0;
     const isOverBudget = item.expenses > item.budget;
     const iconName = iconMap[item.category] || 'ellipse-outline';

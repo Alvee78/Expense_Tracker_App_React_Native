@@ -1,12 +1,11 @@
 import { useTheme } from '@/context/ThemeContext'
+import { saveUser } from '@/services/server'
 import { useSignUp } from '@clerk/clerk-expo'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import * as React from 'react'
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { scale, verticalScale } from 'react-native-size-matters'
-import { Localhost } from '../../services/MagicWord';
-import { saveUser } from '@/services/server'
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -60,8 +59,18 @@ export default function SignUpScreen() {
       })
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
       setPendingVerification(true)
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2))
+    } catch (err: any) {
+      
+      // Show user-friendly error message
+      let errorMessage = 'Failed to create account. Please try again.';
+      
+      if (err?.errors && err.errors.length > 0) {
+        errorMessage = err.errors[0].message || errorMessage;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
+      Alert.alert('Sign Up Error', errorMessage);
     }
   }
 
@@ -79,9 +88,20 @@ export default function SignUpScreen() {
         router.replace('/');
       } else {
         console.error(JSON.stringify(signUpAttempt, null, 2))
+        Alert.alert('Verification Failed', 'Unable to verify your email. Please check your code and try again.');
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2))
+    } catch (err: any) {
+      
+      // Show user-friendly error message
+      let errorMessage = 'Verification failed. Please try again.';
+      
+      if (err?.errors && err.errors.length > 0) {
+        errorMessage = err.errors[0].message || errorMessage;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
+      Alert.alert('Verification Error', errorMessage);
     }
   }
 

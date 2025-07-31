@@ -1,4 +1,5 @@
 import { useTheme } from '@/context/ThemeContext';
+import { saveUser } from '@/services/server';
 import { useUser } from '@clerk/clerk-expo';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,7 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { Image, Modal, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { verticalScale } from 'react-native-size-matters';
 import SignOutButton from '../../components/SignOutButton';
-import { saveUser } from '@/services/server';
 
 const currencyOptions = [
   { label: '৳ Bangladeshi Taka', value: '৳' },

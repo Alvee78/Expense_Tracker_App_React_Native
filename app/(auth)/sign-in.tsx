@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { scale, verticalScale } from 'react-native-size-matters';
 
 export default function Page() {
@@ -62,9 +62,20 @@ export default function Page() {
         router.replace('/');
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
+        Alert.alert('Sign In Failed', 'Unable to complete sign in. Please try again.');
       }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: any) {
+      
+      // Show user-friendly error message
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      
+      if (err?.errors && err.errors.length > 0) {
+        errorMessage = err.errors[0].message || errorMessage;
+      } else if (err?.message) {
+        errorMessage = err.message;
+      }
+      
+      Alert.alert('Sign In Error', errorMessage);
     } finally {
       setIsLoading(false);
     }

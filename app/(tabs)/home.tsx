@@ -41,6 +41,11 @@ const Home = () => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  // Debug current date values
+  console.log(`🔍 Current date: ${new Date()}`);
+  console.log(`🔍 Selected month: ${selectedMonth} (${monthNames[selectedMonth]})`);
+  console.log(`🔍 Selected year: ${selectedYear}`);
+
   // Generate year range (current year ± 5)
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
@@ -69,21 +74,49 @@ const Home = () => {
 
   // Updated fetchExpenses function with date filtering
   const fetchExpenses = async () => {
-    // Create date range for selected month/year
-    const startDate = new Date(selectedYear, selectedMonth, 1);
+    // First, let's check if we should show all expenses or filter
+    console.log(`📅 Current state - Month: ${selectedMonth} (${monthNames[selectedMonth]}), Year: ${selectedYear}`);
+    
+    // For debugging, let's also fetch all expenses
+    const allExpenses = await db.getAllAsync<Expense>('SELECT * FROM expenses ORDER BY created_at DESC');
+    console.log(`📊 Total expenses in DB: ${allExpenses.length}`);
+    
+    if (allExpenses.length > 0) {
+      console.log(`📊 Sample expenses:`, allExpenses.slice(0, 3).map(exp => ({
+        category: exp.category,
+        amount: exp.amount,
+        date: exp.created_at
+      })));
+    }
+
+    // Create date range for selected month/year using local time
+    const startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0);
     const endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59);
     
-    const startDateStr = startDate.toISOString().slice(0, 19).replace('T', ' ');
-    const endDateStr = endDate.toISOString().slice(0, 19).replace('T', ' ');
+    // Format dates to match the database format (YYYY-MM-DD HH:mm:ss)
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+    
+    const startDateStr = formatDate(startDate);
+    const endDateStr = formatDate(endDate);
 
-    console.log(`📅 Fetching expenses for ${monthNames[selectedMonth]} ${selectedYear}`);
-    console.log(`📅 Date range: ${startDateStr} to ${endDateStr}`);
+    console.log(`📅 Filtering from ${startDateStr} to ${endDateStr}`);
 
     // Get filtered expenses
     const results = await db.getAllAsync<Expense>(
       'SELECT * FROM expenses WHERE created_at >= ? AND created_at <= ? ORDER BY created_at DESC',
       [startDateStr, endDateStr]
     );
+    
+    console.log(`📊 Filtered results: ${results.length} expenses found`);
+    
     setExpenses(results);
 
     // Get filtered total income
@@ -106,6 +139,11 @@ const Home = () => {
       const storedName = await AsyncStorage.getItem('userName');
       if (storedName) setUserName(storedName);
     };
+    
+    // Debug the initial state
+    console.log(`🔧 Component mounted - Current Month: ${selectedMonth}, Year: ${selectedYear}`);
+    console.log(`🔧 Today's date: ${new Date()}`);
+    console.log(`🔧 Expected month for July 2025: Month=6, Year=2025`);
     
     fetchUserName();
     fetchExpenses(); // This will now use the selected month/year
