@@ -396,16 +396,13 @@ export default function BudgetScreen() {
       {/* Date Selection */}
       <View style={styles.dateSelectionContainer}>
         <TouchableOpacity 
-          style={[styles.dateSelectionBox, { 
-            backgroundColor: colors.card,
-            borderColor: colors.border 
-          }]}
+          style={styles.dateSelectionBox}
           onPress={() => setDatePickerVisible(true)}
         >
           <Text style={[styles.dateSelectionText, { color: colors.text }]}>
             {monthNames[selectedMonth - 1]} {selectedYear}
           </Text>
-          <Ionicons name="chevron-down" size={20} color={colors.text} />
+          <Ionicons name="chevron-down" size={18} color={colors.text} />
         </TouchableOpacity>
 
         {/* Copy Previous Month Button */}
@@ -522,14 +519,14 @@ export default function BudgetScreen() {
                       key={index}
                       style={[
                         styles.pickerItem,
-                        selectedMonth === index + 1 && { backgroundColor: colors.icon + '30' }
+                        selectedMonth === index + 1 && { backgroundColor: '#22c55e' + '30' }
                       ]}
                       onPress={() => setSelectedMonth(index + 1)}
                       activeOpacity={0.7}
                     >
                       <Text style={[
                         styles.pickerItemText,
-                        { color: selectedMonth === index + 1 ? colors.icon : colors.modalText }
+                        { color: selectedMonth === index + 1 ? '#22c55e' : colors.modalText }
                       ]}>
                         {month}
                       </Text>
@@ -552,14 +549,14 @@ export default function BudgetScreen() {
                       key={year}
                       style={[
                         styles.pickerItem,
-                        selectedYear === year && { backgroundColor: colors.icon + '30' }
+                        selectedYear === year && { backgroundColor: '#22c55e' + '30' }
                       ]}
                       onPress={() => setSelectedYear(year)}
                       activeOpacity={0.7}
                     >
                       <Text style={[
                         styles.pickerItemText,
-                        { color: selectedYear === year ? colors.icon : colors.modalText }
+                        { color: selectedYear === year ? '#22c55e' : colors.modalText }
                       ]}>
                         {year}
                       </Text>
@@ -571,7 +568,7 @@ export default function BudgetScreen() {
 
             <View style={styles.datePickerActions}>
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: colors.icon }]}
+                style={[styles.actionButton, { backgroundColor: '#22c55e' }]}
                 onPress={() => setDatePickerVisible(false)}
                 activeOpacity={0.7}
               >
@@ -666,24 +663,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dateSelectionBox: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    // Removed borderWidth, elevation, shadow for clean look
+    backgroundColor: 'transparent',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderRadius: 6,
     flex: 1,
     marginRight: 12,
-    elevation: 2,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
   },
   dateSelectionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    marginRight: 8,
+    marginRight: 6,
   },
   copyButton: {
     borderWidth: 1,

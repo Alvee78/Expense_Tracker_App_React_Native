@@ -1,6 +1,43 @@
   import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SQLiteDatabase } from 'expo-sqlite'; // adjust import if needed
 import { Localhost } from "./MagicWord";
+
+// Test network connectivity to server
+export async function testNetworkConnection() {
+  try {
+    console.log('🔄 Testing network connectivity to server...');
+    
+    // Create a timeout promise
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), 10000)
+    );
+    
+    const fetchPromise = fetch(`https://${Localhost}/get_user.php`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ email: 'test@example.com' })
+    });
+    
+    const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+    
+    console.log('✅ Response status:', response.status);
+    
+    if (response.ok) {
+      const data = await response.text();
+      console.log('✅ Server response received');
+      return { success: true, message: 'Network connection successful' };
+    } else {
+      return { success: false, message: `HTTP ${response.status}: ${response.statusText}` };
+    }
+  } catch (error: any) {
+    console.error('❌ Network test failed:', error);
+    return { success: false, message: error.message };
+  }
+}
+
 export type Expense = {
   id: number;
   category: string;
@@ -35,7 +72,7 @@ export type BudgetChange = {
   export async function saveUser(user_name: string, email: string) {
     try {
       // Replace with your actual API endpoint
-      const response = await fetch(`http://${Localhost}/save_user.php`, {
+      const response = await fetch(`https://${Localhost}/save_user.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_name, email }),
@@ -374,7 +411,7 @@ export async function fetchAndStoreUserData(db: SQLiteDatabase,email: string) {
       throw new Error('Invalid email address');
     }
 
-    const response = await fetch(`http://${Localhost}/get_user.php`, {
+    const response = await fetch(`https://${Localhost}/get_user.php`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -382,8 +419,8 @@ export async function fetchAndStoreUserData(db: SQLiteDatabase,email: string) {
         'Cache-Control': 'no-cache',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'X-Requested-With': 'XMLHttpRequest',
-        'Referer': `http://${Localhost}/`,
-        'Origin': `http://${Localhost}`,
+        'Referer': `https://${Localhost}/`,
+        'Origin': `https://${Localhost}`,
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate',
         'Connection': 'keep-alive'

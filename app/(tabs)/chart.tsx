@@ -155,16 +155,13 @@ export default function ChartPage() {
       )}
       <View style={styles.dateSelectionContainer}>
         <TouchableOpacity 
-          style={[styles.dateSelectionBox, { 
-            backgroundColor: colors.card,
-            borderColor: colors.border 
-          }]}
+          style={styles.dateSelectionBox}
           onPress={() => setDatePickerVisible(true)}
         >
           <Text style={[styles.dateSelectionText, { color: colors.text }]}>
             {monthNames[selectedMonth]} {selectedYear}
           </Text>
-          <Ionicons name="chevron-down" size={20} color={colors.text} />
+          <Ionicons name="chevron-down" size={18} color={colors.text} />
         </TouchableOpacity>
       </View>
       </View>
@@ -243,7 +240,9 @@ export default function ChartPage() {
                       key={index}
                       style={[
                         styles.pickerItem,
-                        selectedMonth === index && { backgroundColor: colors.icon + '30' }
+                        selectedMonth === index && { 
+                          backgroundColor: '#22c55e' + '30'
+                        }
                       ]}
                       onPress={() => {
                         console.log('Month selected:', index, monthNames[index]);
@@ -253,7 +252,10 @@ export default function ChartPage() {
                     >
                       <Text style={[
                         styles.pickerItemText,
-                        { color: selectedMonth === index ? colors.icon : colors.modalText }
+                        { 
+                          color: selectedMonth === index ? '#22c55e' : colors.modalText,
+                          fontWeight: selectedMonth === index ? 'bold' : 'normal'
+                        }
                       ]}>
                         {month}
                       </Text>
@@ -276,7 +278,9 @@ export default function ChartPage() {
                       key={year}
                       style={[
                         styles.pickerItem,
-                        selectedYear === year && { backgroundColor: colors.icon + '30' }
+                        selectedYear === year && { 
+                          backgroundColor: '#22c55e' + '30'
+                        }
                       ]}
                       onPress={() => {
                         console.log('Year selected:', year);
@@ -286,7 +290,10 @@ export default function ChartPage() {
                     >
                       <Text style={[
                         styles.pickerItemText,
-                        { color: selectedYear === year ? colors.icon : colors.modalText }
+                        { 
+                          color: selectedYear === year ? '#22c55e' : colors.modalText,
+                          fontWeight: selectedYear === year ? 'bold' : 'normal'
+                        }
                       ]}>
                         {year}
                       </Text>
@@ -298,7 +305,7 @@ export default function ChartPage() {
 
             <View style={styles.datePickerActions}>
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: colors.icon }]}
+                style={[styles.actionButton, { backgroundColor: '#22c55e' }]}
                 onPress={() => {
                   console.log('Done button pressed - selections:', {
                     month: selectedMonth,
@@ -339,24 +346,19 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   dateSelectionBox: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    // Removed borderWidth, elevation, shadow for clean look
+    backgroundColor: 'transparent',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minWidth: 180,
-    maxWidth: 220,
-    elevation: 2,
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
+    borderRadius: 6,
   },
   dateSelectionText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
-    marginRight: 8,
+    marginRight: 6,
   },
 
   title: {
@@ -479,6 +481,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 2,
     minHeight: 44,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   pickerItemText: {
     fontSize: 16,
