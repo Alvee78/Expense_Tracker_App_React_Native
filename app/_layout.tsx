@@ -131,7 +131,7 @@ export default function RootLayout() {
 
 
   return (
-    <ClerkProvider tokenCache={tokenCache}>
+    <ClerkProvider publishableKey='pk_test_YnJhdmUtYmlzb24tNTEuY2xlcmsuYWNjb3VudHMuZGV2JA' tokenCache={tokenCache}>
       <SQLiteProvider databaseName="ExpenseTracker.db" onInit={migrateDbIfNeeded}>
         <ThemeProvider>
           <Stack screenOptions={{

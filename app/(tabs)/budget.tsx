@@ -49,7 +49,7 @@ type BudgetItem = {
 export default function BudgetScreen() {
   const db = useSQLiteContext();
   const navigation = useNavigation();
-  const { theme, setIsDataUpdated } = useTheme();
+  const { theme, setIsDataUpdated, currency } = useTheme();
 
   // Month/Year selection state
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-12
@@ -372,17 +372,17 @@ export default function BudgetScreen() {
           />
           <View style={styles.details}>
             <Text style={[styles.label, { color: colors.subtitle }]}>
-              Budget: <Text style={[styles.value, { color: colors.text }]}>${item.budget.toLocaleString()}</Text>
+              Budget: <Text style={[styles.value, { color: colors.text }]}>{currency}{item.budget.toLocaleString()}</Text>
             </Text>
             <Text style={[styles.label, { color: colors.subtitle }]}>
               Spent: <Text style={[styles.value, { color: isOverBudget ? '#ef4444' : colors.text }]}>
-                ${item.expenses.toLocaleString()}
+                {currency}{item.expenses.toLocaleString()}
               </Text>
             </Text>
             <Text style={[styles.label, { color: colors.subtitle }]}>
               {isOverBudget ? 'Over by: ' : 'Remaining: '}
               <Text style={[styles.value, { color: isOverBudget ? '#ef4444' : '#22c55e' }]}>
-                ${Math.abs(remaining).toLocaleString()}
+                {currency}{Math.abs(remaining).toLocaleString()}
               </Text>
             </Text>
           </View>
@@ -425,18 +425,18 @@ export default function BudgetScreen() {
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.subtitle }]}>Total Budget</Text>
-              <Text style={[styles.summaryValue, { color: colors.text }]}>${totalBudget.toLocaleString()}</Text>
+              <Text style={[styles.summaryValue, { color: colors.text }]}>{currency}{totalBudget.toLocaleString()}</Text>
             </View>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.subtitle }]}>Total Spent</Text>
               <Text style={[styles.summaryValue, { color: totalExpenses > totalBudget ? '#ef4444' : colors.text }]}>
-                ${totalExpenses.toLocaleString()}
+                {currency}{totalExpenses.toLocaleString()}
               </Text>
             </View>
             <View style={styles.summaryItem}>
               <Text style={[styles.summaryLabel, { color: colors.subtitle }]}>Remaining</Text>
               <Text style={[styles.summaryValue, { color: totalBudget - totalExpenses >= 0 ? '#22c55e' : '#ef4444' }]}>
-                ${Math.abs(totalBudget - totalExpenses).toLocaleString()}
+                {currency}{Math.abs(totalBudget - totalExpenses < 0 ? 0 : totalBudget - totalExpenses).toLocaleString()}
               </Text>
             </View>
           </View>

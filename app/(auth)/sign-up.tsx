@@ -4,7 +4,7 @@ import { useSignUp } from '@clerk/clerk-expo'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import * as React from 'react'
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { scale, verticalScale } from 'react-native-size-matters'
 
 export default function SignUpScreen() {
@@ -16,6 +16,7 @@ export default function SignUpScreen() {
   const [password, setPassword] = React.useState('')
   const [pendingVerification, setPendingVerification] = React.useState(false)
   const [code, setCode] = React.useState('')
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // Improved grey-based light theme
   const colors = theme === 'dark'
@@ -46,11 +47,13 @@ export default function SignUpScreen() {
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
+
     if (!isLoaded) return
     if (!emailAddress || !password || !fullName) {
       Alert.alert('Please fill in all fields');
       return;
     }
+    setIsLoading(true);
     await AsyncStorage.setItem('userName', fullName);
     try {
       await signUp.create({
@@ -71,13 +74,16 @@ export default function SignUpScreen() {
       }
       
       Alert.alert('Sign Up Error', errorMessage);
+    }finally {
+      setIsLoading(false);
     }
+
   }
 
   // Handle submission of verification form
   const onVerifyPress = async () => {
     if (!isLoaded) return
-
+    setIsLoading(true);
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
         code,
@@ -102,6 +108,8 @@ export default function SignUpScreen() {
       }
       
       Alert.alert('Verification Error', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -118,9 +126,15 @@ export default function SignUpScreen() {
             keyboardType="number-pad"
             placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
           />
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onVerifyPress}>
-            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Verify</Text>
-          </TouchableOpacity>
+          {isLoading ? (
+            <View style={[styles.button, { backgroundColor: colors.button }]}>
+              <ActivityIndicator size="small" color={colors.buttonText} />
+            </View>
+          ) : (
+            <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onVerifyPress}>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>Verify</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     )
@@ -155,9 +169,16 @@ export default function SignUpScreen() {
           onChangeText={setPassword}
           placeholderTextColor={theme === 'dark' ? '#a1a1aa' : '#888'}
         />
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignUpPress}>
-          <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
-        </TouchableOpacity>
+        {isLoading ? (
+          <View style={[styles.button, { backgroundColor: colors.button }]}>
+            <ActivityIndicator size="small" color={colors.buttonText} />
+          </View>
+        ) : (
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.button }]} onPress={onSignUpPress}>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>Continue</Text>
+          </TouchableOpacity>
+        )}
+
         <View style={styles.row}>
           <Text style={[styles.text, { color: colors.text }]}>Already have an account?</Text>
           <TouchableOpacity onPress={() => router.replace('/sign-in')}>
@@ -203,7 +224,7 @@ const styles = StyleSheet.create({
     fontSize: scale(16),
   },
   button: {
-    height: verticalScale(45),
+    height: verticalScale(50),
     paddingVertical: verticalScale(14),
     borderRadius: 8,
     marginBottom: verticalScale(18),
