@@ -193,7 +193,6 @@ Configure in a future PR.
 
 ## 🗺 Roadmap
 
-- [ ] Cloud sync backend
 - [ ] Category management & icons
 - [ ] Advanced charts (weekly / category breakdown)
 - [ ] Recurring transactions
